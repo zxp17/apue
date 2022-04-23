@@ -24,6 +24,9 @@
 #include <libgen.h>
 #include <sys/resource.h>
 #include <sys/epoll.h>
+#include "gettime.h"
+
+
 #define	MAX_EVENTS		512
 
 int socket_server_init(char *listen_ip,int listen_port);
@@ -183,13 +186,8 @@ int main(int argc,char ** argv)
 				}
 				else
 				{
-					printf("socket[%d] read get %d bytes data from client and echo back: %s \n",event_array[i].data.fd,rv,buf);
+					printf("socket[%d] read get %d bytes data from client and echo back:temperature:  %s\ntime: %s\n",event_array[i].data.fd,rv,buf,getTime());
 
-					//convert letter from lowercase to uppercase
-					for(j = 0;j < rv; j++)
-					{
-						buf[j] = toupper(buf[j]);
-					}
 					if(write(event_array[i].data.fd,buf,rv) < 0)
 					{
 						printf("sokcet[%d] write failure: %s\n",event_array[i].data.fd,strerror(errno));
@@ -252,7 +250,7 @@ int socket_server_init(char *listen_ip,int listen_port)
 	//对套接字进行地址和端口的绑定，这一才能进行数据的接收和发送操作
 	if(bind(listenfd,(struct sockaddr *)&serveraddr,sizeof(serveraddr)) < 0)
 	{
-		printf("bind tcp socket failure: %d\n",strerror(errno));
+		printf("bind tcp socket failure: %s\n",strerror(errno));
 		rv = -3;
 		goto cleanup;
 	}
@@ -299,5 +297,5 @@ void set_socket_rlimit(void)
 	limit.rlim_cur = limit.rlim_max;
 	setrlimit(RLIMIT_NOFILE,&limit);
 
-	printf("set socket open fd max count to %d\n",limit.rlim_max);
+	printf("set socket open fd max count to %ld\n",limit.rlim_max);
 }

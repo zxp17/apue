@@ -22,6 +22,9 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include "gettime.h"
+#include "temper.h"
+
 
 
 #define SERVER_IP		"127.0.0.1"
@@ -37,27 +40,32 @@ int main(int argc,char **argv)
 	char				buf[1024];
 	struct sockaddr_in	serv_addr;
 	int					serv_port;
-	char				*serv_ip;
+	char				*serv_ip = NULL;
 	int					opt;
 	char				*progname = NULL;
-	int					fd = -1;
-	char				buf_tem[128];
-	char				*ptr = NULL;
-	float				tem_f;
-	int					sig = 25;
-	char				tem_f_s[100];
+	int					sleep_time;
+
+	double				take_temper;
+	char				tem[128] = {0};
 
 
 	struct option		long_options[] = 
 	{
 		{"ip",required_argument,NULL,'i'},
 		{"port",required_argument,NULL,'p'},
+		{"sleep_time",required_argument,NULL,'s'},
 		{"help",no_argument,NULL,'h'},
 		{NULL,0,NULL,0}
-	};
+	};	
+
+	take_temper = getTemper();
+	printf("take_temper: %s\n",getTemper());
+
+	gcvt(take_temper,25,tem);
+	printf("tem = %s\n",tem);
 
 	//命令行参数解析
-	while((opt = getopt_long(argc,argv,"i:p:h",long_options,NULL)) != -1)
+	while((opt = getopt_long(argc,argv,"i:p:s:h",long_options,NULL)) != -1)
 	{
 		switch(opt)
 		{
@@ -70,42 +78,13 @@ int main(int argc,char **argv)
 			case 'h':		//get help
 				print_usage(progname);
 				return EXIT_SUCCESS;
+			case 's':
+				sleep_time = atoi(optarg);
 			default:
 				break;
 				
 		}
 	}
-
-	//读取树莓派的温度
-	fd = open("/sys/bus/w1/devices/28-0317320a8aff/w1_slave",O_RDONLY);
-	if(fd < 0)
-	{
-		printf("open file failure: %s\n",strerror(errno));
-		return -1;
-	}
-	memset(buf_tem,0,sizeof(buf_tem));
-	read(fd,buf_tem,sizeof(buf_tem));
-	printf("buf_tem: %s\n",buf_tem);
-
-	//通过在字符串中找字串"t="的方式，获取温度值
-	ptr = strstr(buf_tem,"t=");
-
-	if(!ptr)
-	{
-		printf("can not find t = string\n");
-		return -1;
-	}
-	ptr += 2;			//通过输出结果可知，只要将指针后移两位就能获取温度的数值
-	printf("ptr: %s\n",ptr);
-
-	tem_f = atof(ptr);
-	printf("tem_f: %f\n",tem_f/1000);
-	
-	gcvt(tem_f/1000,sig,tem_f_s);
-	printf("tem_f_s: %s\n",tem_f_s);
-	
-
-	close(fd);
 
 
 	conn_fd = socket(AF_INET,SOCK_STREAM,0);
@@ -129,11 +108,14 @@ int main(int argc,char **argv)
 
 	while(1)
 	{
-		if(write(conn_fd,tem_f_s,strlen(tem_f_s)) < 0)
+		if(write(conn_fd,tem,strlen(tem)) < 0)
 		{
 			printf("write data to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
 			goto cleanup;
 		}
+
+		printf("\n\nwrite successfully\n");
+		printf("write data to server [%s:%d\ntemperature: %s\ntime: %s",serv_ip,serv_port,tem,getTime());
 
 		memset(buf,0,sizeof(buf));
 
@@ -150,7 +132,7 @@ int main(int argc,char **argv)
 			goto cleanup;
 		}
 		printf("read %d bytes data from server: '%s'\n",rv,buf);
-		sleep(100);
+		sleep(sleep_time);
 	}
 cleanup:
 	close(conn_fd);
@@ -167,7 +149,8 @@ static inline void print_usage(char *progname)
 	printf("-i[ip ] set ip address\n");
 	printf("-p[port ]socket server port address\n");
 	printf("-h[help ] display information");
+	printf("-s[sleep_time ] set interval time");
 
-	printf("\n example:%s -i 127.0.0.1 -p 7777\n",progname);
+	printf("\n example:%s -i 127.0.0.1 -p 7777 -s 2 \n",progname);
 	return ;
 }
