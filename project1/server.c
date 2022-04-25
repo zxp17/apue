@@ -52,8 +52,6 @@ int main(int argc,char ** argv)
 	char				*progname = NULL;
 
 
-
-
 	struct option		long_options[] = 
 	{
 		{"daemon",no_argument,NULL,'d'},
@@ -62,7 +60,9 @@ int main(int argc,char ** argv)
 		{NULL,0,NULL,0},
 	};
 
+
 	progname = basename(argv[0]);
+
 
 	//解析命令行参数
 	while((opt = getopt_long(argc,argv,"dp:h",long_options,NULL)) != -1)
@@ -89,7 +89,9 @@ int main(int argc,char ** argv)
 		return -1;
 	}
 
+
 	set_socket_rlimit();
+
 
 	if((listenfd = socket_server_init(NULL,serv_port)) < 0)
 	{
@@ -98,12 +100,16 @@ int main(int argc,char ** argv)
 	}
 	printf("%s server start to listen on port %d\n",listenip,serv_port);
 
+
+
 	if( daemon_run )		//set program running on background
 	{
 		daemon(0,0);
 		//第一个参数为0，表示将进程的工作目录改为‘/’根目录
 		//第二个参数为0，表示输入、输出以及错误输出重定向到/dev/null
 	}
+
+
 	//epoll_create()该函数生成一个epoll专用的文件描述符，其中参数是指定生成描述符的最大范围
 	if((epollfd = epoll_create(MAX_EVENTS)) < 0)
 	{
@@ -115,6 +121,7 @@ int main(int argc,char ** argv)
 	event.events = EPOLLIN;			//EPOLLIN表示对应的文件描述符可以读
 	event.data.fd = listenfd;		//保存触发事件的某个文件描述符
 
+
 	//epoll_ctl()函数用于控制某个文件描述符上的事件
 	//参数EPOLL_CTL_ADD表示注册事件
 	if( epoll_ctl(epollfd,EPOLL_CTL_ADD,listenfd,&event) < 0 )
@@ -122,6 +129,7 @@ int main(int argc,char ** argv)
 		printf("epoll add listen socket failure: %s\n",strerror(errno));
 		return -4;
 	}
+
 
 	for(;;)
 	{
@@ -131,6 +139,7 @@ int main(int argc,char ** argv)
 		//event_array是用于回传处理事件的数组
 		//MAX_EVENTS是每次能处理的事件数
 		//最后一个参数-1表示调用将一直阻塞，直到兴趣列表中的文件描述符上有事件产生或者直到捕捉到一个信号为止
+	
 		events = epoll_wait(epollfd,event_array,MAX_EVENTS,-1);
 
 		if(events < 0)
@@ -143,6 +152,7 @@ int main(int argc,char ** argv)
 			printf("epoll_wait get timeout\n");
 			continue;
 		}
+
 		//events > 0 的情况，往下运行
 		for(i = 0; i < events; i++)
 		{
@@ -151,6 +161,7 @@ int main(int argc,char ** argv)
 			{
 				printf("epoll_wait get error on fd[%d]: %s\n",event_array[i].data.fd,strerror(errno));
 				epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
+		
 				//epoll_ctl()该函数用于控制文件描述符上的文件，EPOLL_CTL_DEL表示删除事件
 				close(event_array[i].data.fd);
 			}
@@ -175,9 +186,12 @@ int main(int argc,char ** argv)
 				}
 				printf("epoll add new client socket[%d] ok\n",connfd);
 			}
+
 			else		//already connected client socket get data incoming
 			{
-				if((rv = read(event_array[i].data.fd,buf,sizeof(buf))) < 0)
+				memset(buf,0,sizeof(buf));
+
+				if((rv = read(event_array[i].data.fd,buf,sizeof(buf))) <= 0)
 				{
 					printf("socket[%d] read failure or get disconnect and will be removed\n",event_array[i].data.fd);
 					epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
@@ -186,7 +200,10 @@ int main(int argc,char ** argv)
 				}
 				else
 				{
-					printf("socket[%d] read get %d bytes data from client and echo back:temperature:  %s\ntime: %s\n",event_array[i].data.fd,rv,buf,getTime());
+
+					printf("\n\n");
+
+					printf("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
 
 					if(write(event_array[i].data.fd,buf,rv) < 0)
 					{
@@ -194,6 +211,7 @@ int main(int argc,char ** argv)
 						epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 						close(event_array[i].data.fd);
 					}
+					printf("write finish\n");
 				}
 			}
 		}

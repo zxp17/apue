@@ -15,12 +15,19 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 
-int main(int argc,char *argv[])
-{
-	sqlite3 	*db;
-	char		*zErrMsg = 0;
-	int			rc;
+static int callback(void *NotUsed,int argc,char **argv,char **azColName);
 
+
+sqlite3		*db;
+char		*zErrMsg = 0;
+int			rc;
+char		*sql;
+
+//打开数据库
+int open_database()
+{
+
+	//open temperature_database
 	rc = sqlite3_open("temperature_database.db",&db);
 
 	if(rc)
@@ -30,7 +37,46 @@ int main(int argc,char *argv[])
 	}
 	else
 	{
-		fprintf(stderr,"opened database successfully\n");
+		fprintf(stdout,"opened database successfully\n");
 	}
-	sqlite3_close(db);
+
+	return 0;
+}
+
+//关闭数据库
+int close_database()
+{
+	sqlite3_close(db);	
+}
+
+//执行数据库
+int execute_exec()
+{
+	rc = sqlite3_exec(db,sql,callback,0,&zErrMsg);
+
+	if(rc != SQLITE_OK)
+	{
+		fprintf(stderr,"SQL error: %s\n",zErrMsg);
+		sqlite3_free(zErrMsg);
+		return -1;
+	}
+	else
+	{
+		fprintf(stdout,"execute database successfully!\n");
+	}
+	return 0;
+}
+
+
+
+static int callback(void *NotUsed,int argc,char **argv,char **azColName)
+{
+	int 		i;
+	for(i = 0;i < argc; i++)
+	{
+		printf("%s = %s\n",azColName[i],argv[i] ? argv[i] : "NULL");
+	}
+	printf("\n");
+
+	return 0;
 }

@@ -25,11 +25,8 @@
 #include "gettime.h"
 #include "temper.h"
 
+#define	EQUIP_NUMBER	"DS18B20"
 
-
-#define SERVER_IP		"127.0.0.1"
-#define SERVER_PORT		7777
-//#define MSG_STR			"hello,unix network program world"
 
 static inline void print_usage(char *progname);
 
@@ -45,24 +42,52 @@ int main(int argc,char **argv)
 	char				*progname = NULL;
 	int					sleep_time;
 
-	double				take_temper;
-	char				tem[128] = {0};
+
+	struct trans_info{
+
+		char			equipment_number[128];
+		char			*time;
+		char			temperature[128];
+	};
+	
+
+	struct trans_info			tt;
+/*
+	strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
+	printf("tt.equipment_number = %s\n",tt.equipment_number);
+	
+	getTemper(tt.temperature);
+	printf("main获取当前的温度是: %s\n",tt.temperature);
+
+	tt.time = NULL;
+	getTime(&tt.time);
+	printf("main获取当前的时间是: %s\n",tt.time);
+
+*/
+/*  
+	//处理获取温度的变量
+	char		tem[128] = {0};
+	getTemper(tem);
+	printf("main获取当前的温度是: %s\n",tem);
+
+	return 0;
+
+	//处理获取时间的变量
+	char		*time_str = NULL;
+    getTime(&time_str);
+	printf("main获取当前的时间是：%s\n",time_str);
+*/
 
 
-	struct option		long_options[] = 
+	struct option			long_options[] = 
 	{
 		{"ip",required_argument,NULL,'i'},
 		{"port",required_argument,NULL,'p'},
 		{"sleep_time",required_argument,NULL,'s'},
 		{"help",no_argument,NULL,'h'},
 		{NULL,0,NULL,0}
-	};	
+	};
 
-	take_temper = getTemper();
-	printf("take_temper: %s\n",getTemper());
-
-	gcvt(take_temper,25,tem);
-	printf("tem = %s\n",tem);
 
 	//命令行参数解析
 	while((opt = getopt_long(argc,argv,"i:p:s:h",long_options,NULL)) != -1)
@@ -94,28 +119,52 @@ int main(int argc,char **argv)
 		printf("create socket failure: %d\n",strerror(errno));
 		return -1;
 	}
-
+	
 	memset(&serv_addr,0,sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(serv_port);
-	inet_aton(serv_ip,&serv_addr.sin_addr);
+	inet_aton(serv_ip,&serv_addr.sin_addr);		
+
 
 	if(connect(conn_fd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
 	{
 		printf("connect to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
 		return 0;
 	}
-
+	
 	while(1)
 	{
-		if(write(conn_fd,tem,strlen(tem)) < 0)
+
+		strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
+		getTemper(tt.temperature);
+		tt.time = NULL;
+		getTime(&tt.time);
+
+		printf("\n");
+
+		if(write(conn_fd,tt.equipment_number,strlen(tt.equipment_number)) < 0)
 		{
-			printf("write data to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
+			printf("write equipment_number to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
 			goto cleanup;
 		}
+		printf("\n");
 
-		printf("\n\nwrite successfully\n");
-		printf("write data to server [%s:%d\ntemperature: %s\ntime: %s",serv_ip,serv_port,tem,getTime());
+		if(write(conn_fd,tt.time,strlen(tt.time)) < 0)
+		{
+			printf("write time to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
+		}
+		printf("\n");
+
+		if(write(conn_fd,tt.temperature,strlen(tt.temperature)) < 0)
+		{
+			printf("write temperature to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
+		}
+		printf("\n");
+
+		printf("write successfully\n");
+
+		printf("write data to server [%s:%d] successfully\nequipment_number: %d\ntime: %stemperature: %s\n",serv_ip,serv_port,tt.equipment_number,tt.time,tt.temperature);
+		printf("\n\n");
 
 		memset(buf,0,sizeof(buf));
 
@@ -131,8 +180,8 @@ int main(int argc,char **argv)
 			printf("client connect to server get disconnect\n");
 			goto cleanup;
 		}
-		printf("read %d bytes data from server: '%s'\n",rv,buf);
-		sleep(sleep_time);
+		//printf("read %d bytes data from server: '%s'\n",rv,buf);
+		sleep(sleep_time);		//修改这部分的处理，通过获取当前时间的差来固定“休眠”的时间
 	}
 cleanup:
 	close(conn_fd);

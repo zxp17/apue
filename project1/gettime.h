@@ -12,15 +12,19 @@
  ********************************************************************************/
 
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-char* getTime()
+
+void getTime(char  **s)
 {
 	time_t 		*timep = malloc(sizeof(*timep));
 
 	time(timep);
-	char		*s = ctime(timep);
+	*s = ctime(timep);
 
-	printf("%s",s);
+	//printf("*s = %s",*s);
 
-	return s;
+	//printf("获取时间函数执行完毕\n");
+
 }
