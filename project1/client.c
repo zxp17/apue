@@ -45,7 +45,7 @@ int main(int argc,char **argv)
 
 	struct trans_info{
 
-		char			equipment_number[128];
+		char			equipment_number[1024];
 		char			*time;
 		char			temperature[128];
 	};
@@ -140,25 +140,18 @@ int main(int argc,char **argv)
 		tt.time = NULL;
 		getTime(&tt.time);
 
-		printf("\n");
+		strcat(tt.equipment_number,"\n");
+		strcat(tt.equipment_number,tt.time);
+		strcat(tt.equipment_number,tt.temperature);
+		printf("tt.equipment_number = %s\n",tt.equipment_number);
+
 
 		if(write(conn_fd,tt.equipment_number,strlen(tt.equipment_number)) < 0)
 		{
 			printf("write equipment_number to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
 			goto cleanup;
 		}
-		printf("\n");
-
-		if(write(conn_fd,tt.time,strlen(tt.time)) < 0)
-		{
-			printf("write time to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
-		}
-		printf("\n");
-
-		if(write(conn_fd,tt.temperature,strlen(tt.temperature)) < 0)
-		{
-			printf("write temperature to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
-		}
+		sleep(1);
 		printf("\n");
 
 		printf("write successfully\n");

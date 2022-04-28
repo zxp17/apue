@@ -53,7 +53,10 @@
 	temp = atof(ptr);
 //	printf("(我是浮点型温度值）temp/1000: %f\n",temp/1000);
 
-	gcvt(temp/1000,sig,s);
+
+	gcvt((int)(temp/1000),sig,s);
+
+
 //	printf("s: %s\n",s);
 
 //	*s = final;

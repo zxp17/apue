@@ -24,14 +24,16 @@
 #include <libgen.h>
 #include <sys/resource.h>
 #include <sys/epoll.h>
+#include <sqlite3.h>
 #include "gettime.h"
-
+//#include "create_database.h"
 
 #define	MAX_EVENTS		512
 
 int socket_server_init(char *listen_ip,int listen_port);
 static inline void print_usage(char *progname);
 void set_socket_rlimit(void);
+static int callback(void *NotUsed,int argc,char **argv,char **azColName);
 
 
 int main(int argc,char ** argv)
@@ -45,13 +47,31 @@ int main(int argc,char ** argv)
 	struct epoll_event	event;
 	struct epoll_event	event_array[MAX_EVENTS];
 	int					events;
-	int					i,j;
+	int					i;
+	int					x = 0,y = 0;
 	int					rv;
 	char				buf[1024];
 	int					opt;
 	char				*progname = NULL;
 
+  
+	char				equipment_number[128] = {0};
+	char				time[256] ={0};
+	char				temperature[128] = {0};
 
+
+	char				*p = NULL;
+	char				*p1 = (char*)malloc(1024);
+	char				take_info[32][256] = {0};
+
+
+	char				sql[1024];
+	char				*sql1 = NULL;
+	int 				rc = 0;
+	sqlite3				*db;
+	char				*zErrMsg = NULL;
+
+	
 	struct option		long_options[] = 
 	{
 		{"daemon",no_argument,NULL,'d'},
@@ -98,6 +118,7 @@ int main(int argc,char ** argv)
 		printf("BAD NEWS: %s server listen on port %d failure\n",listenip,serv_port);
 		return -2;
 	}
+	printf("listenfd = %d\n",listenfd);
 	printf("%s server start to listen on port %d\n",listenip,serv_port);
 
 
@@ -133,6 +154,9 @@ int main(int argc,char ** argv)
 
 	for(;;)
 	{
+
+		printf("进入for循环\n");
+
 		//program will blocked here
 
 		//epoll_wait()该函数用于轮询I/O事件的发生
@@ -174,6 +198,8 @@ int main(int argc,char ** argv)
 					printf("accept new client failure: %s\n",strerror(errno));
 					continue;
 				}
+				printf("accept成功\b");
+
 				event.data.fd = connfd;
 				event.events = EPOLLIN;			//表示对应的文件描述符可读
 				//将该事件添加到兴趣列表中去
@@ -204,6 +230,71 @@ int main(int argc,char ** argv)
 					printf("\n\n");
 
 					printf("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
+
+
+
+					//在这里要得到插入数据库的数据
+
+					p = buf;
+					x = 0;
+					while((p1 = strchr(p,'\n')) != NULL)
+					{
+						
+						strncpy(take_info[x],p,strlen(p) - strlen(p1));
+						p = p1+1;
+						x++;
+					}
+					printf("x = %d\n",x);
+					strncpy(take_info[x],p,strlen(p));
+
+					for(y = 0;y <= x; y++)
+					{
+						printf("take_info[%d]: %s\n",y,take_info[y]);
+					}
+ 
+					//free(p1);
+					
+					rc = sqlite3_open("temperature_database.db",&db);
+					//printf("up db: %p\n",*db);
+					
+					if(rc)
+					{
+						fprintf(stderr,"can not open database: %s\n",sqlite3_errmsg(db));
+						exit(0);
+					}
+					else
+					{
+						fprintf(stdout,"opened database successfully\n");
+					}
+  
+/*  	
+					snprintf(sql,sizeof(sql),"INSERT INTO %s(SERIAL,TIME,TEMPERATURE)VALUES('%s','%s','%s');","COMPANY",take_info[0],take_info[1],take_info[2]);
+
+					
+					printf("sql: %s\n",sql);
+*/
+					sql1 = "INSERT INTO COMPANY (SERIAL,TIME,TEMPERATURE) " \
+							"VALUES ('00','0','0');";
+
+					printf("sql1: %s\n",sql1);
+
+ 					
+					//printf("down db: %p\n",db);
+					rc = sqlite3_exec(db,sql1,callback,0,&zErrMsg);
+  
+					printf("rc = %s\n",rc);
+ 
+					if(rc != SQLITE_OK)
+					{
+						fprintf(stderr,"SQL error: %s\n",zErrMsg);
+						sqlite3_free(zErrMsg);
+					}
+					else
+					{
+						fprintf(stdout,"REcords created successfully\n");
+					}
+ 					sqlite3_close(db);
+
 
 					if(write(event_array[i].data.fd,buf,rv) < 0)
 					{
@@ -272,6 +363,7 @@ int socket_server_init(char *listen_ip,int listen_port)
 		rv = -3;
 		goto cleanup;
 	}
+	printf("bind()成功\n");
 
 	//listen()函数中的第二个参数规定了内核应为套接字排队的最大连接个数
 	if(listen(listenfd,77) < 0)
@@ -280,6 +372,9 @@ int socket_server_init(char *listen_ip,int listen_port)
 		rv = -4;
 		goto cleanup;
 	}
+	printf("listen成功\n");
+
+
 cleanup:
 	if( rv< 0 )
 		close(listenfd);
@@ -316,4 +411,14 @@ void set_socket_rlimit(void)
 	setrlimit(RLIMIT_NOFILE,&limit);
 
 	printf("set socket open fd max count to %ld\n",limit.rlim_max);
+}
+static int callback(void *NotUsed,int argc,char **argv,char **azColName)
+{
+	int i;
+	for(i = 0;i < argc; i++)
+	{
+		printf("%s = %s\n",azColName[i],argv[i] ? argv[i] : "NULL");
+	}
+	printf("\n");
+	return 0;
 }
