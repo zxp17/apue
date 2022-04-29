@@ -17,58 +17,28 @@
 
 static int callback(void *NotUsed,int argc,char **argv,char **azColName);
 int open_database();
-int execute_exec();
+int execute_exec(char *sql_trans);
 int close_database();
-
-sqlite3		*db;
-char		*zErrMsg = 0;
-int			rc;
-char		*sql;
-
   
-int main(int argc,char *argv[])
+int main(int argc,char **argv)
 {
-	
-//查看当前数据库中的数据
- /*   
+
+
+	sqlite3		*db;
+	char		*zErrMsg = 0;
+	int			rc;
+	char		*sql;
+
 	open_database();
 
 	sql = "SELECT * from COMPANY";
 
-	execute_exec();
-	close_database();
-*/
-//删除数据库中指定的数据
-/*  	
-
- 	open_database();
-
-	sql = "DELETE from COMPANY where SERIAL=26; " \
-		   "SELECT * from COMPANY";
-
-	execute_exec();
+	execute_exec(sql);
 
 	close_database();
-*/
-//插入数据到数据库中
-	
-	open_database();
-
-	sql = "INSERT INTO COMPANY (SERIAL,TIME,TEMPERATURE) " \
-		   "VALUES ('222','212','222');";
-
-
-	printf("sql: %s\n",sql);
-
-	execute_exec();
-
-	close_database();
-
 
 	return 0;
-
 }
-
 //打开数据库
 int open_database()
 {
@@ -96,21 +66,22 @@ int close_database()
 }
 
 //执行数据库
-int execute_exec()
+int execute_exec(char *sql_trans)
 {
-	rc = sqlite3_exec(db,sql,callback,NULL,&zErrMsg);
-
-	printf("执行成功时rv: %d\n",rc);
+	sql = sql_trans;
+	rc = sqlite3_exec(db,sql,callback,0,&zErrMsg);
 
 	if(rc != SQLITE_OK)
 	{
-		printf("nonononononononon\n");
+	
 		fprintf(stderr,"SQL error: %s\n",zErrMsg);
 		sqlite3_free(zErrMsg);
+		return -1;
 	}
 	else
 	{
-		printf("yesyesyesyesssssssss\n");
+
+		
 		fprintf(stdout,"execute database successfully!\n");
 	}
 	return 0;

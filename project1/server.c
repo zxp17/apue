@@ -33,7 +33,6 @@
 int socket_server_init(char *listen_ip,int listen_port);
 static inline void print_usage(char *progname);
 void set_socket_rlimit(void);
-static int callback(void *NotUsed,int argc,char **argv,char **azColName);
 
 
 int main(int argc,char ** argv)
@@ -54,22 +53,21 @@ int main(int argc,char ** argv)
 	int					opt;
 	char				*progname = NULL;
 
-  
+	//获取序列号、时间和温度  
 	char				equipment_number[128] = {0};
 	char				time[256] ={0};
 	char				temperature[128] = {0};
 
-
+	//将获取得到的数据存在take_info二元数组里面
 	char				*p = NULL;
 	char				*p1 = (char*)malloc(1024);
 	char				take_info[32][256] = {0};
 
-
-	char				sql[1024];
+	//执行时的sql语句
 	char				*sql1 = NULL;
-	int 				rc = 0;
-	sqlite3				*db;
-	char				*zErrMsg = NULL;
+	int					rc;
+	char				*zErrMsg = 0;
+	sqlite3				*db = NULL;
 
 	
 	struct option		long_options[] = 
@@ -141,6 +139,7 @@ int main(int argc,char ** argv)
 	//event.events = EPOLLIN|EPOLLET;
 	event.events = EPOLLIN;			//EPOLLIN表示对应的文件描述符可以读
 	event.data.fd = listenfd;		//保存触发事件的某个文件描述符
+
 
 
 	//epoll_ctl()函数用于控制某个文件描述符上的事件
@@ -232,7 +231,6 @@ int main(int argc,char ** argv)
 					printf("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
 
 
-
 					//在这里要得到插入数据库的数据
 
 					p = buf;
@@ -244,7 +242,7 @@ int main(int argc,char ** argv)
 						p = p1+1;
 						x++;
 					}
-					printf("x = %d\n",x);
+					//printf("x = %d\n",x);
 					strncpy(take_info[x],p,strlen(p));
 
 					for(y = 0;y <= x; y++)
@@ -252,48 +250,47 @@ int main(int argc,char ** argv)
 						printf("take_info[%d]: %s\n",y,take_info[y]);
 					}
  
-					//free(p1);
-					
-					rc = sqlite3_open("temperature_database.db",&db);
-					//printf("up db: %p\n",*db);
-					
-					if(rc)
-					{
-						fprintf(stderr,"can not open database: %s\n",sqlite3_errmsg(db));
-						exit(0);
-					}
-					else
-					{
-						fprintf(stdout,"opened database successfully\n");
-					}
-  
-/*  	
+					free(p1);
+
+/*
+ 	
 					snprintf(sql,sizeof(sql),"INSERT INTO %s(SERIAL,TIME,TEMPERATURE)VALUES('%s','%s','%s');","COMPANY",take_info[0],take_info[1],take_info[2]);
 
 					
 					printf("sql: %s\n",sql);
+
+
 */
+  					
+					rc = sqlite3_open("temperature_database.db",&db);
+					if(rc)
+					{
+						printf("打开数据库失败\n");
+						exit(0);
+					}
+					else
+					{
+						printf("打开数据库成功\n");
+					}
+
 					sql1 = "INSERT INTO COMPANY (SERIAL,TIME,TEMPERATURE) " \
-							"VALUES ('00','0','0');";
+							"VALUES ('1234','1234','1234');";
 
-					printf("sql1: %s\n",sql1);
-
- 					
-					//printf("down db: %p\n",db);
-					rc = sqlite3_exec(db,sql1,callback,0,&zErrMsg);
-  
-					printf("rc = %s\n",rc);
- 
+/*  				rc = sqlite3_exec(db,sql1,NULL,NULL,&zErrMsg);
+					
 					if(rc != SQLITE_OK)
 					{
-						fprintf(stderr,"SQL error: %s\n",zErrMsg);
+						printf("执行失败\n");
 						sqlite3_free(zErrMsg);
 					}
 					else
 					{
-						fprintf(stdout,"REcords created successfully\n");
+						printf("执行成功\n");
 					}
- 					sqlite3_close(db);
+					sqlite3_close(db);
+					
+*/									
+ 					
 
 
 					if(write(event_array[i].data.fd,buf,rv) < 0)
@@ -412,13 +409,4 @@ void set_socket_rlimit(void)
 
 	printf("set socket open fd max count to %ld\n",limit.rlim_max);
 }
-static int callback(void *NotUsed,int argc,char **argv,char **azColName)
-{
-	int i;
-	for(i = 0;i < argc; i++)
-	{
-		printf("%s = %s\n",azColName[i],argv[i] ? argv[i] : "NULL");
-	}
-	printf("\n");
-	return 0;
-}
+
