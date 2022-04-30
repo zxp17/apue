@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include "gettime.h"
 #include "gettemper.h"
@@ -41,7 +42,9 @@ int main(int argc,char **argv)
 	int					opt;
 	char				*progname = NULL;
 	int					sleep_time;
+	static int			on = 0;
 
+	struct timeval      before,after;
 
 	struct trans_info{
 
@@ -98,8 +101,8 @@ int main(int argc,char **argv)
 	serv_addr.sin_port = htons(serv_port);
 	inet_aton(serv_ip,&serv_addr.sin_addr);		
 
-
-	if(connect(conn_fd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
+	
+	if(connect(conn_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
 	{
 		printf("connect to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
 		return 0;
@@ -107,7 +110,6 @@ int main(int argc,char **argv)
 	
 	while(1)
 	{
-
 		strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
 		getTemper(tt.temperature);
 		tt.time = NULL;
@@ -116,8 +118,26 @@ int main(int argc,char **argv)
 		strcat(tt.equipment_number,"\n");
 		strcat(tt.equipment_number,tt.time);
 		strcat(tt.equipment_number,tt.temperature);
-		printf("tt.equipment_number = %s\n",tt.equipment_number);
+		printf("trans_info = %s\n",tt.equipment_number);
 
+		if(on)
+		{
+			printf("ready to reconnect\n");
+			close(conn_fd);
+			conn_fd = socket(AF_INET,SOCK_STREAM,0);
+			if(conn_fd < 0)
+			{
+				printf("recreate socket failure\n");
+				return -1;
+			}
+			
+			while(connect(conn_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
+			{
+				printf("every 5 seconds reconnect\n");
+				sleep(5);
+			}
+			on = 0;
+		}
 
 		if(write(conn_fd,tt.equipment_number,strlen(tt.equipment_number)) < 0)
 		{
@@ -127,9 +147,9 @@ int main(int argc,char **argv)
 		sleep(1);
 		printf("\n");
 
+		printf("write data to server [%s:%d] successfully\nbuf is : %s\n",serv_ip,serv_port,tt.equipment_number);
 		printf("write successfully\n");
 
-		printf("write data to server [%s:%d] successfully\nequipment_number: %d\ntime: %stemperature: %s\n",serv_ip,serv_port,tt.equipment_number,tt.time,tt.temperature);
 		printf("\n\n");
 
 		memset(buf,0,sizeof(buf));
@@ -144,10 +164,11 @@ int main(int argc,char **argv)
 		else if(0 == rv)
 		{
 			printf("client connect to server get disconnect\n");
-			goto cleanup;
+			on = 1;
 		}
 		//printf("read %d bytes data from server: '%s'\n",rv,buf);
-		sleep(sleep_time);		//修改这部分的处理，通过获取当前时间的差来固定“休眠”的时间
+
+		sleep(sleep_time);
 	}
 cleanup:
 	close(conn_fd);
