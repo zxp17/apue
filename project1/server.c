@@ -26,7 +26,7 @@
 #include <sys/epoll.h>
 #include <sqlite3.h>
 #include "gettime.h"
-//#include "create_database.h"
+#include "create_database.h"
 
 #define	MAX_EVENTS		512
 
@@ -39,7 +39,7 @@ int main(int argc,char ** argv)
 {
 
 	int					listenfd,connfd;
-	char				*listenip;
+//	char				*listenip;
 	int					serv_port = 0;
 	int					daemon_run = 0;
 	int					epollfd = 0;
@@ -53,10 +53,6 @@ int main(int argc,char ** argv)
 	int					opt;
 	char				*progname = NULL;
 
-	//获取序列号、时间和温度  
-	char				equipment_number[128] = {0};
-	char				time[256] ={0};
-	char				temperature[128] = {0};
 
 	//将获取得到的数据存在take_info二元数组里面
 	char				*p = NULL;
@@ -64,11 +60,9 @@ int main(int argc,char ** argv)
 	char				take_info[32][256] = {0};
 
 	//执行时的sql语句
-	char				*sql1 = NULL;
+	char				sql[2048];
 	int					rc;
-	char				*zErrMsg = 0;
-	sqlite3				*db = NULL;
-
+	sqlite3				*db;
 	
 	struct option		long_options[] = 
 	{
@@ -113,11 +107,12 @@ int main(int argc,char ** argv)
 
 	if((listenfd = socket_server_init(NULL,serv_port)) < 0)
 	{
-		printf("BAD NEWS: %s server listen on port %d failure\n",listenip,serv_port);
+		printf("BAD NEWS:  server listen on port %d failure\n",serv_port);
 		return -2;
 	}
+
 	printf("listenfd = %d\n",listenfd);
-	printf("%s server start to listen on port %d\n",listenip,serv_port);
+	printf(" server start to listen on port %d\n",serv_port);
 
 
 
@@ -151,10 +146,9 @@ int main(int argc,char ** argv)
 	}
 
 
+
 	for(;;)
 	{
-
-		printf("进入for循环\n");
 
 		//program will blocked here
 
@@ -250,47 +244,15 @@ int main(int argc,char ** argv)
 						printf("take_info[%d]: %s\n",y,take_info[y]);
 					}
  
-					free(p1);
+					//free(p1);
 
-/*
- 	
+					open_database("temperature_database.db",&db);
+
 					snprintf(sql,sizeof(sql),"INSERT INTO %s(SERIAL,TIME,TEMPERATURE)VALUES('%s','%s','%s');","COMPANY",take_info[0],take_info[1],take_info[2]);
 
-					
-					printf("sql: %s\n",sql);
+					execute_exec(db,sql);
 
-
-*/
-  					
-					rc = sqlite3_open("temperature_database.db",&db);
-					if(rc)
-					{
-						printf("打开数据库失败\n");
-						exit(0);
-					}
-					else
-					{
-						printf("打开数据库成功\n");
-					}
-
-					sql1 = "INSERT INTO COMPANY (SERIAL,TIME,TEMPERATURE) " \
-							"VALUES ('1234','1234','1234');";
-
-/*  				rc = sqlite3_exec(db,sql1,NULL,NULL,&zErrMsg);
-					
-					if(rc != SQLITE_OK)
-					{
-						printf("执行失败\n");
-						sqlite3_free(zErrMsg);
-					}
-					else
-					{
-						printf("执行成功\n");
-					}
-					sqlite3_close(db);
-					
-*/									
- 					
+					close_database(db);
 
 
 					if(write(event_array[i].data.fd,buf,rv) < 0)

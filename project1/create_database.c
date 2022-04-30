@@ -19,15 +19,16 @@ static int callback(void *NotUsed,int argc,char **argv,char **azColName);
 int open_database();
 int execute_exec(char *sql_trans);
 int close_database();
-  
+ 
+sqlite3	*db;
+char	*zErrMsg = 0;
+int     rc;
+char		*sql;
+
 int main(int argc,char **argv)
 {
 
 
-	sqlite3		*db;
-	char		*zErrMsg = 0;
-	int			rc;
-	char		*sql;
 
 	open_database();
 

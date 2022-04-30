@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include "gettime.h"
-#include "temper.h"
+#include "gettemper.h"
 
 #define	EQUIP_NUMBER	"DS18B20"
 
@@ -45,39 +45,12 @@ int main(int argc,char **argv)
 
 	struct trans_info{
 
-		char			equipment_number[1024];
+		char			equipment_number[128];
 		char			*time;
 		char			temperature[128];
 	};
-	
 
-	struct trans_info			tt;
-/*
-	strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
-	printf("tt.equipment_number = %s\n",tt.equipment_number);
-	
-	getTemper(tt.temperature);
-	printf("main获取当前的温度是: %s\n",tt.temperature);
-
-	tt.time = NULL;
-	getTime(&tt.time);
-	printf("main获取当前的时间是: %s\n",tt.time);
-
-*/
-/*  
-	//处理获取温度的变量
-	char		tem[128] = {0};
-	getTemper(tem);
-	printf("main获取当前的温度是: %s\n",tem);
-
-	return 0;
-
-	//处理获取时间的变量
-	char		*time_str = NULL;
-    getTime(&time_str);
-	printf("main获取当前的时间是：%s\n",time_str);
-*/
-
+	struct trans_info		tt;
 
 	struct option			long_options[] = 
 	{

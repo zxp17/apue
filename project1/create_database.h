@@ -16,26 +16,29 @@
 #include <stdlib.h>
 
 static int callback(void *NotUsed,int argc,char **argv,char **azColName);
-int open_database();
-int execute_exec(char *sql_trans);
-int close_database();
-  
+int open_database(const char *filename,sqlite3 **db);
+int execute_exec(sqlite3 *db,const char *sql);
+int close_database(sqlite3* db);
+
+/*  
 sqlite3		*db;
 char		*zErrMsg = 0;
 int			rc;
 char		*sql;
-
+*/
 
 //打开数据库
-int open_database()
+int open_database(const char *filename,sqlite3 **db)
 {
 
+
 	//open temperature_database
-	rc = sqlite3_open("temperature_database.db",&db);
+	int			rc;
+	rc = sqlite3_open(filename,db);
 
 	if(rc)
 	{
-		fprintf(stderr,"can not open database: %s\n",sqlite3_errmsg(db));
+		fprintf(stderr,"can not open database: %s\n",sqlite3_errmsg(*db));
 		exit(0);
 	}
 	else
@@ -47,15 +50,18 @@ int open_database()
 }
 
 //关闭数据库
-int close_database()
+int close_database(sqlite3 *db)
 {
 	sqlite3_close(db);	
 }
 
 //执行数据库
-int execute_exec(char *sql_trans)
+int execute_exec(sqlite3 *db,const char *sql)
 {
-	sql = sql_trans;
+	sqlite3_callback	callback;
+	char				*zErrMsg = 0;
+	int					rc;
+
 	rc = sqlite3_exec(db,sql,callback,0,&zErrMsg);
 
 	if(rc != SQLITE_OK)
