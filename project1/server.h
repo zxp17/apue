@@ -2,43 +2,41 @@
  *      Copyright:  (C) 2022 zhengxuping<1572077261@qq.com>
  *                  All rights reserved.
  *
- *       Filename:  client.h
+ *       Filename:  server.h
  *    Description:  This head file 
  *
  *        Version:  1.0.0(30/04/22)
  *         Author:  zhengxuping <1572077261@qq.com>
- *      ChangeLog:  1, Release initial version on "30/04/22 17:18:49"
+ *      ChangeLog:  1, Release initial version on "30/04/22 17:37:30"
  *                 
  ********************************************************************************/
 
-/* 
- *upload data definition
+/*
+ *command ling parameter definition
  * */
 
-struct trans_info
+struct option		long_options[] = 
 {
-	char		equipment_number[128];
-	char		*time;
-	char		temperature[128];
-};
-
-
-/* 
- *option parmeter definition
- * */
-
-struct option	long_options[] = 
-{
-	{"ip",required_argument,NULL,'i'},
+	{"daemon",no_argument,NULL,'d'},
 	{"port",required_argument,NULL,'p'},
-	{"sleep_time",required_argument,NULL,'s'},
 	{"help",no_argument,NULL,'h'},
-	{NULL,0,NULL,0}
+	{NULL,0,NULL,0},
 };
 
 
 /*
- *function:prompt parameter input
+ *initalization of a socket
  * */
+int socket_server_init(char *listen_ip,int listen_port);
 
+
+/* 
+ *command line parameter input prompt
+ * */
 static inline void print_usage(char *progname);
+
+
+/* 
+ *sets the maximun number of file descriptors
+ * */
+void set_socket_rlimit(void);

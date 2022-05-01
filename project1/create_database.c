@@ -32,7 +32,8 @@ int main(int argc,char **argv)
 
 	open_database();
 
-	sql = "SELECT * from COMPANY";
+	sql = "DELETE from COMPANY; " \
+		"SELECT * from COMPANY";
 
 	execute_exec(sql);
 

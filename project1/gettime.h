@@ -15,7 +15,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+/* 
+ *get time function
+ * */ 
 void getTime(char  **s)
 {
 	time_t 		*timep = malloc(sizeof(*timep));
@@ -23,8 +25,7 @@ void getTime(char  **s)
 	time(timep);
 	*s = ctime(timep);
 
-	//printf("*s = %s",*s);
-
-	//printf("获取时间函数执行完毕\n");
-
+#ifdef DEBUG
+	printf("获取时间函数执行完毕\n");
+#endif
 }

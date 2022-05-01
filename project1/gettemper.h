@@ -21,12 +21,15 @@
 #include <stdlib.h>
 #include <errno.h>
 
+/* 
+ *get temperature function
+ * */
  void getTemper(char  *s)
 {
 	int			fd = -1;
 	char		buf[128];
 	char		*ptr = NULL;
-	double		temp = 0;
+	double		temperature = 0;
 	int			sig = 25;
 
 
@@ -39,32 +42,23 @@
 
 	memset(buf,0,sizeof(buf));
 	read(fd,buf,sizeof(buf));
-//	printf("buf: %s\n",buf);
 
 	ptr = strstr(buf,"t=");
 	if(!ptr)
 	{
 		printf("can not find t = string\n");
-	}
-	
+	}	
+
 	ptr += 2;
-//	printf("(我是字符串温度值)ptr:%s\n",ptr);
-	temp = atof(ptr);
-//	printf("(我是浮点型温度值）temp/1000: %f\n",temp/1000);
+	temperature = atof(ptr);
 
-
-	gcvt((temp/1000),sig,s);
-
-
-//	printf("s: %s\n",s);
-
-//	*s = final;
-//	printf("s = %p\n",s);
+	gcvt((temperature/1000),sig,s);
 
 
 	close(fd);
 
-//	printf("获取温度函数执行完毕\n");
-
+#ifdef DEBUG	
+	printf("获取温度函数执行完毕\n");
+#endif
 	
 }

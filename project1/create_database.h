@@ -20,19 +20,12 @@ int open_database(const char *filename,sqlite3 **db);
 int execute_exec(sqlite3 *db,const char *sql);
 int close_database(sqlite3* db);
 
-/*  
-sqlite3		*db;
-char		*zErrMsg = 0;
-int			rc;
-char		*sql;
-*/
-
-//打开数据库
+/* 
+ *open the database
+ * */
 int open_database(const char *filename,sqlite3 **db)
 {
 
-
-	//open temperature_database
 	int			rc;
 	rc = sqlite3_open(filename,db);
 
@@ -49,13 +42,18 @@ int open_database(const char *filename,sqlite3 **db)
 	return 0;
 }
 
-//关闭数据库
+
+/* 
+ *close the database
+ * */
 int close_database(sqlite3 *db)
 {
 	sqlite3_close(db);	
 }
 
-//执行数据库
+/* 
+ *execution database
+ * */
 int execute_exec(sqlite3 *db,const char *sql)
 {
 	sqlite3_callback	callback;
@@ -79,7 +77,6 @@ int execute_exec(sqlite3 *db,const char *sql)
 	}
 	return 0;
 }
-
 
 
 static int callback(void *NotUsed,int argc,char **argv,char **azColName)

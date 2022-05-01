@@ -23,13 +23,13 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <fcntl.h>
+#include "client.h"
 #include "gettime.h"
 #include "gettemper.h"
 
 #define	EQUIP_NUMBER	"DS18B20"
+//#define DEBUG
 
-
-static inline void print_usage(char *progname);
 
 int main(int argc,char **argv)
 {
@@ -42,30 +42,13 @@ int main(int argc,char **argv)
 	int					opt;
 	char				*progname = NULL;
 	int					sleep_time;
-	static int			on = 0;
-
+	static int			g_on = 0;
 	struct timeval      before,after;
-
-	struct trans_info{
-
-		char			equipment_number[128];
-		char			*time;
-		char			temperature[128];
-	};
-
 	struct trans_info		tt;
 
-	struct option			long_options[] = 
-	{
-		{"ip",required_argument,NULL,'i'},
-		{"port",required_argument,NULL,'p'},
-		{"sleep_time",required_argument,NULL,'s'},
-		{"help",no_argument,NULL,'h'},
-		{NULL,0,NULL,0}
-	};
-
-
-	//命令行参数解析
+	/*
+	 *command ling parameter parsing
+	 * */
 	while((opt = getopt_long(argc,argv,"i:p:s:h",long_options,NULL)) != -1)
 	{
 		switch(opt)
@@ -110,17 +93,29 @@ int main(int argc,char **argv)
 	
 	while(1)
 	{
+		gettimeofday(&before,NULL);
+#ifdef DEBUG		
+		printf("seconds of before: %ld\n",before.tv_sec);
+#endif
+		/* 
+		 *upload data assignment
+		 * */
 		strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
 		getTemper(tt.temperature);
 		tt.time = NULL;
 		getTime(&tt.time);
 
+		/*
+		 *upload data splicing
+		 * */
 		strcat(tt.equipment_number,"\n");
 		strcat(tt.equipment_number,tt.time);
 		strcat(tt.equipment_number,tt.temperature);
-		printf("trans_info = %s\n",tt.equipment_number);
 
-		if(on)
+		/* 
+		 *drop the line and reconnect
+		 * */
+		if(g_on)
 		{
 			printf("ready to reconnect\n");
 			close(conn_fd);
@@ -136,7 +131,7 @@ int main(int argc,char **argv)
 				printf("every 5 seconds reconnect\n");
 				sleep(5);
 			}
-			on = 0;
+			g_on = 0;
 		}
 
 		if(write(conn_fd,tt.equipment_number,strlen(tt.equipment_number)) < 0)
@@ -145,15 +140,13 @@ int main(int argc,char **argv)
 			goto cleanup;
 		}
 		sleep(1);
-		printf("\n");
+	
 
-		printf("write data to server [%s:%d] successfully\nbuf is : %s\n",serv_ip,serv_port,tt.equipment_number);
+		printf("\n\nwrite data to server [%s:%d] successfully\nbuf is : %s\n",serv_ip,serv_port,tt.equipment_number);
 		printf("write successfully\n");
-
-		printf("\n\n");
+	
 
 		memset(buf,0,sizeof(buf));
-
 		rv = read(conn_fd,buf,sizeof(buf));
 
 		if(rv < 0)
@@ -164,11 +157,22 @@ int main(int argc,char **argv)
 		else if(0 == rv)
 		{
 			printf("client connect to server get disconnect\n");
-			on = 1;
+			g_on = 1;
 		}
-		//printf("read %d bytes data from server: '%s'\n",rv,buf);
+#ifdef DEBUG		
+		printf("read %d bytes data from server: '%s'\n",rv,buf);
+#endif
+		gettimeofday(&after,NULL);
 
-		sleep(sleep_time);
+		while(sleep_time > (after.tv_sec - before.tv_sec))
+		{
+			gettimeofday(&after,NULL);
+			continue;
+		}
+#ifdef DEBUG		
+		printf("seconds of after: %ld\n",after.tv_sec);
+#endif
+
 	}
 cleanup:
 	close(conn_fd);
