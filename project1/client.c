@@ -27,7 +27,7 @@
 #include "gettime.h"
 #include "gettemper.h"
 
-#define	EQUIP_NUMBER	"DS18B20"
+#define	EQUIP_NUMBER	"Raspberrypi007"
 //#define DEBUG
 
 
@@ -41,8 +41,10 @@ int main(int argc,char **argv)
 	char				*serv_ip = NULL;
 	int					opt;
 	char				*progname = NULL;
+	char				info[2048];
+	char				character[1] = "\n";
 	int					sleep_time;
-	static int			g_on = 0;
+	static int			g_disconnect = 0;
 	struct timeval      before,after;
 	struct trans_info		tt;
 
@@ -66,31 +68,11 @@ int main(int argc,char **argv)
 				sleep_time = atoi(optarg);
 			default:
 				break;
-				
 		}
 	}
 
+	conn_fd = socket_connect(serv_ip,serv_port);
 
-	conn_fd = socket(AF_INET,SOCK_STREAM,0);
-
-	if(conn_fd < 0)
-	{
-		printf("create socket failure: %d\n",strerror(errno));
-		return -1;
-	}
-	
-	memset(&serv_addr,0,sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(serv_port);
-	inet_aton(serv_ip,&serv_addr.sin_addr);		
-
-	
-	if(connect(conn_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
-	{
-		printf("connect to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
-		return 0;
-	}
-	
 	while(1)
 	{
 		gettimeofday(&before,NULL);
@@ -102,53 +84,44 @@ int main(int argc,char **argv)
 		 * */
 		strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
 		getTemper(tt.temperature);
-		tt.time = NULL;
-		getTime(&tt.time);
-
+		getTime(tt.time);
+#ifdef DEBUG
+		printf("tt.equipment_number: %s\n",tt.equipment_number);
+		printf("tt.time: %s\n",tt.time);
+		printf("tt.temperature: %s\n",tt.temperature);
+		printf("\n");
+#endif
 		/*
 		 *upload data splicing
 		 * */
-		strcat(tt.equipment_number,"\n");
-		strcat(tt.equipment_number,tt.time);
-		strcat(tt.equipment_number,tt.temperature);
-
+	
+		memset(info,0,sizeof(info));
+		strncat(info,tt.equipment_number,strlen(tt.equipment_number));
+		strncat(info,character,strlen(character)+1);
+		strncat(info,tt.time,strlen(tt.time));
+		strncat(info,character,strlen(character)+1);
+		strncat(info,tt.temperature,strlen(tt.temperature));
 		/* 
 		 *drop the line and reconnect
 		 * */
-		if(g_on)
-		{
-			printf("ready to reconnect\n");
-			close(conn_fd);
-			conn_fd = socket(AF_INET,SOCK_STREAM,0);
-			if(conn_fd < 0)
-			{
-				printf("recreate socket failure\n");
-				return -1;
-			}
-			
-			while(connect(conn_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
-			{
-				printf("every 5 seconds reconnect\n");
-				sleep(5);
-			}
-			g_on = 0;
-		}
 
-		if(write(conn_fd,tt.equipment_number,strlen(tt.equipment_number)) < 0)
+
+		if(g_disconnect)
+		{
+			conn_fd = socket_connect(serv_ip,serv_port);
+			g_disconnect = 0;
+		}
+		if(write(conn_fd,info,strlen(info)) < 0)
 		{
 			printf("write equipment_number to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
 			goto cleanup;
 		}
-		sleep(1);
 	
-
-		printf("\n\nwrite data to server [%s:%d] successfully\nbuf is : %s\n",serv_ip,serv_port,tt.equipment_number);
-		printf("write successfully\n");
+		printf("\n\nwrite data to server [%s:%d] successfully\ninfo is : %s\n",serv_ip,serv_port,info);
 	
 
 		memset(buf,0,sizeof(buf));
 		rv = read(conn_fd,buf,sizeof(buf));
-
 		if(rv < 0)
 		{
 			printf("read data from server failure: %s\n",strerror(errno));
@@ -157,7 +130,7 @@ int main(int argc,char **argv)
 		else if(0 == rv)
 		{
 			printf("client connect to server get disconnect\n");
-			g_on = 1;
+			g_disconnect = 1;
 		}
 #ifdef DEBUG		
 		printf("read %d bytes data from server: '%s'\n",rv,buf);
@@ -193,4 +166,30 @@ static inline void print_usage(char *progname)
 
 	printf("\n example:%s -i 127.0.0.1 -p 7777 -s 2 \n",progname);
 	return ;
+}
+
+int socket_connect(char *ip,int port)
+{
+
+	struct sockaddr_in		serv_addr;
+
+	int connfd = socket(AF_INET,SOCK_STREAM,0);
+
+	if(connfd < 0)
+	{
+		printf("create socket failure: %d\n",strerror(errno));
+		return -1;
+	}
+	
+	memset(&serv_addr,0,sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons(port);
+	inet_aton(ip,&serv_addr.sin_addr);
+
+	if(connect(connfd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
+	{
+		printf("connect to server [%s:%d] failure: %s\n",ip,port,strerror(errno));
+		return -1;
+	}
+	return connfd;
 }

@@ -18,7 +18,7 @@
 struct trans_info
 {
 	char		equipment_number[128];
-	char		*time;
+	char		time[128];
 	char		temperature[128];
 };
 
@@ -42,3 +42,9 @@ struct option	long_options[] =
  * */
 
 static inline void print_usage(char *progname);
+
+/* 
+ *function:create socket and connect
+ * */
+
+int socket_connect(char *ip,int port);

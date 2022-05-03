@@ -18,12 +18,18 @@
 /* 
  *get time function
  * */ 
-void getTime(char  **s)
+void getTime(char *s)
 {
-	time_t 		*timep = malloc(sizeof(*timep));
+	time_t 				timep;
+	struct tm			*p;
+	
 
-	time(timep);
-	*s = ctime(timep);
+	time(&timep);
+	p = gmtime(&timep);
+
+
+	snprintf(s,30,"%d/%d/%d %d:%d:%d",1900+p->tm_year,1+p->tm_mon,p->tm_mday,8+p->tm_hour,p->tm_min,p->tm_sec);
+
 
 #ifdef DEBUG
 	printf("获取时间函数执行完毕\n");
