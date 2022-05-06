@@ -101,6 +101,7 @@ int main(int argc,char **argv)
 			else
 			{
 				printf("sample data successfully\n");
+				sample_flag = 1;
 			}
 			printf("msg : %s\n",msg);
 		}
