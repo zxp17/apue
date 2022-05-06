@@ -17,7 +17,7 @@
 
 struct trans_info
 {
-	char		equipment_number[10];
+	char		sno[10];
 	char		time[20];
 	char		temperature[10];
 };

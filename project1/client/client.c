@@ -226,11 +226,11 @@ int socket_connect(char *ip,int port)
 }
 int pack_info(struct trans_info *info,char *msg,int size)
 {
-	strncpy(info->equipment_number,"rpi007",sizeof("rpi007"));
+	strncpy(info->sno,"rpi007",sizeof("rpi007"));
 	getTime(info->time);
 	getTemper(info->temperature);
 
-	snprintf(msg,size,"%s\n%s\n%s",info->equipment_number,info->time,info->temperature);
+	snprintf(msg,size,"%s\n%s\n%s",info->sno,info->time,info->temperature);
 
 	return 0;
 
