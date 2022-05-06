@@ -47,7 +47,7 @@ int main(int argc,char **argv)
 	char				msg[128];
 	char				character[1] = "\n";
 	int					sleep_time;
-	struct timeval      before,after;
+	struct timeval      last,now;
 	struct trans_info	tt;
 	sqlite3				*db;
 
@@ -84,13 +84,13 @@ int main(int argc,char **argv)
 	}
 
 	conn_fd = socket_connect(serv_ip,serv_port);
-
+	
+	gettimeofday(&last,NULL);
 
 	while(1)
 	{
-		gettimeofday(&before,NULL);
-
-		if(sample_time)
+		gettimeofday(&now,NULL);
+		if(sleep_time <= (now.tv_sec - last.tv_sec))
 		{
 			printf("开始采样\n");
 			if(pack_info(&tt,msg,sizeof(msg)) < 0)
@@ -104,6 +104,8 @@ int main(int argc,char **argv)
 				sample_flag = 1;
 			}
 			printf("msg : %s\n",msg);
+
+			last.tv_sec = now.tv_sec;
 		}
 		if(conn_fd < 0)
 		{
@@ -174,14 +176,9 @@ int main(int argc,char **argv)
 				}
 			}
 		}
-		gettimeofday(&after,NULL);
-		while(sleep_time > (after.tv_sec - before.tv_sec))
-		{
-			gettimeofday(&after,NULL);
-			continue;
-		}
-		sample_time = 1;
 	}
+close(conn_fd);
+sqlite3_close(db);
 }
 
 static inline void print_usage(char *progname)
