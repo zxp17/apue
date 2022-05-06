@@ -23,30 +23,36 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <fcntl.h>
+#include "client_database.c"
 #include "client.h"
 #include "gettime.h"
 #include "gettemper.h"
 
 #define	EQUIP_NUMBER	"Raspberrypi007"
-//#define DEBUG
-
+#define DEBUG
+int pack_info(struct trans_info *info,char *msg,int size);
 
 int main(int argc,char **argv)
 {
 	int					conn_fd = -1;
 	int					rv = -1;
-	char				buf[1024];
-	struct sockaddr_in	serv_addr;
+	char				buf[128];
+//	struct sockaddr_in	serv_addr;
 	int					serv_port;
 	char				*serv_ip = NULL;
 	int					opt;
 	char				*progname = NULL;
-	char				info[2048];
+	void				*optval;
+	int					optlen = sizeof(optval);
+	char				msg[128];
 	char				character[1] = "\n";
 	int					sleep_time;
-	static int			g_disconnect = 0;
 	struct timeval      before,after;
-	struct trans_info		tt;
+	struct trans_info	tt;
+	sqlite3				*db;
+
+	int					sample_time = 0;
+	int					sample_flag = 0;
 
 	/*
 	 *command ling parameter parsing
@@ -70,86 +76,111 @@ int main(int argc,char **argv)
 				break;
 		}
 	}
+	if((open_database("client_database.db",db))< 0)
+	{
+		printf("open database failure\n");
+		return -1;
+		close(conn_fd);
+	}
 
 	conn_fd = socket_connect(serv_ip,serv_port);
+
 
 	while(1)
 	{
 		gettimeofday(&before,NULL);
-#ifdef DEBUG		
-		printf("seconds of before: %ld\n",before.tv_sec);
-#endif
-		/* 
-		 *upload data assignment
-		 * */
-		strncpy(tt.equipment_number,"DB18B20",sizeof("DB18B20"));
-		getTemper(tt.temperature);
-		getTime(tt.time);
-#ifdef DEBUG
-		printf("tt.equipment_number: %s\n",tt.equipment_number);
-		printf("tt.time: %s\n",tt.time);
-		printf("tt.temperature: %s\n",tt.temperature);
-		printf("\n");
-#endif
-		/*
-		 *upload data splicing
-		 * */
-	
-		memset(info,0,sizeof(info));
-		strncat(info,tt.equipment_number,strlen(tt.equipment_number));
-		strncat(info,character,strlen(character)+1);
-		strncat(info,tt.time,strlen(tt.time));
-		strncat(info,character,strlen(character)+1);
-		strncat(info,tt.temperature,strlen(tt.temperature));
-		/* 
-		 *drop the line and reconnect
-		 * */
 
-
-		if(g_disconnect)
+		if(sample_time)
+		{
+			printf("开始采样\n");
+			if(pack_info(&tt,msg,sizeof(msg)) < 0)
+			{
+				printf("sample data failure\n");
+				continue;
+			}
+			else
+			{
+				printf("sample data successfully\n");
+			}
+			printf("msg : %s\n",msg);
+		}
+		if(conn_fd < 0)
 		{
 			conn_fd = socket_connect(serv_ip,serv_port);
-			g_disconnect = 0;
+			if(conn_fd < 0)
+			{
+				if(sample_flag)
+				{
+					if(save_database(db,msg) != 0)
+					{
+						printf("save data failure\n");
+					}
+				}
+				conn_fd = -1;
+			}
+			else
+			{
+				printf("connect server successfully\n");
+				conn_fd = 1;
+			}
+			
 		}
-		if(write(conn_fd,info,strlen(info)) < 0)
-		{
-			printf("write equipment_number to server [%s:%d] failure: %s\n",serv_ip,serv_port,strerror(errno));
-			goto cleanup;
-		}
-	
-		printf("\n\nwrite data to server [%s:%d] successfully\ninfo is : %s\n",serv_ip,serv_port,info);
-	
 
-		memset(buf,0,sizeof(buf));
-		rv = read(conn_fd,buf,sizeof(buf));
-		if(rv < 0)
+		setsockopt(conn_fd,SOL_SOCKET,SO_REUSEADDR,optval,optlen);
+		if(optval <= 0)
 		{
-			printf("read data from server failure: %s\n",strerror(errno));
-			goto cleanup;
+			if(sample_flag)
+			{
+				if(save_database(db,msg) != 0)
+				{
+					printf("save data failure\n");
+				}
+			}
+			conn_fd = -1;
 		}
-		else if(0 == rv)
+		else				//网络连接正常
 		{
-			printf("client connect to server get disconnect\n");
-			g_disconnect = 1;
+			if(conn_fd >= 0)
+			{
+				if(write(conn_fd,msg,strlen(msg)) < 0)
+				{
+					printf("send data to server failure\n");
+				}
+				if(select_database(db,buf) > 0)		//数据库中有残余的数据
+				{
+					if(write(conn_fd,msg,strlen(msg)) < 0)
+					{
+						printf("send data to server failure\n");
+					}
+					else
+					{
+						printf("send data to server successfull\n");
+
+						if(delete_database(db) != 0)
+						{
+							printf("delete data failure\n");
+						}
+						else
+						{
+							printf("delete data successfully\n");
+						}
+
+					}
+				}
+				else
+				{
+					printf("the database is empty\n");
+				}
+			}
 		}
-#ifdef DEBUG		
-		printf("read %d bytes data from server: '%s'\n",rv,buf);
-#endif
 		gettimeofday(&after,NULL);
-
 		while(sleep_time > (after.tv_sec - before.tv_sec))
 		{
 			gettimeofday(&after,NULL);
 			continue;
 		}
-#ifdef DEBUG		
-		printf("seconds of after: %ld\n",after.tv_sec);
-#endif
-
+		sample_time = 1;
 	}
-cleanup:
-	close(conn_fd);
-
 }
 
 static inline void print_usage(char *progname)
@@ -192,4 +223,15 @@ int socket_connect(char *ip,int port)
 		return -1;
 	}
 	return connfd;
+}
+int pack_info(struct trans_info *info,char *msg,int size)
+{
+	strncpy(info->equipment_number,"rpi007",sizeof("rpi007"));
+	getTime(info->time);
+	getTemper(info->temperature);
+
+	snprintf(msg,size,"%s\n%s\n%s",info->equipment_number,info->time,info->temperature);
+
+	return 0;
+
 }

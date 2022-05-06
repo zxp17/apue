@@ -26,7 +26,7 @@
 #include <sys/epoll.h>
 #include <sqlite3.h>
 #include "server.h"
-#include "gettime.h"
+//#include "gettime.h"
 #include "create_database.h"
 
 #define	MAX_EVENTS		512
