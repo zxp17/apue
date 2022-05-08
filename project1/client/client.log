@@ -1,0 +1,163 @@
+client : 17:15:50 [ERROR] open the database failure: No such file or directory
+
+client : 17:19:53 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:19:54 [DEBUG] msg: 
+client : 17:19:54 [INFO ] sample data successfully
+
+client : 17:19:54 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:19:54 [ERROR] connect server failure: Connection refused
+
+client : 17:19:56 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:19:56 [ERROR] connect server failure: Connection refused
+
+client : 17:19:58 [DEBUG] msg: 
+client : 17:19:58 [INFO ] sample data successfully
+
+client : 17:19:58 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:19:58 [ERROR] connect server failure: Connection refused
+
+client : 17:20:00 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:20:00 [ERROR] connect server failure: Connection refused
+
+client : 17:20:02 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:20:02 [ERROR] connect server failure: Connection refused
+
+client : 17:20:05 [DEBUG] msg: 
+client : 17:20:05 [INFO ] sample data successfully
+
+client : 17:20:05 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 17:20:05 [ERROR] connect server failure: Connection refused
+
+client : 18:36:20 [ERROR] open the database failure: No such file or directory
+
+client : 18:36:29 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:36:30 [DEBUG] msg: 
+client : 18:36:30 [INFO ] sample data successfully
+
+client : 18:36:30 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:36:30 [ERROR] connect server failure: Connection refused
+
+client : 18:39:46 [ERROR] open the database failure: No such file or directory
+
+client : 18:39:52 [DEBUG] msg: 
+client : 18:39:52 [INFO ] sample data successfully
+
+client : 18:39:52 [INFO ] the database is empty
+
+client : 18:39:54 [INFO ] the database is empty
+
+client : 18:39:56 [INFO ] the database is empty
+
+client : 18:39:59 [DEBUG] msg: 
+client : 18:39:59 [INFO ] sample data successfully
+
+client : 18:39:59 [INFO ] the database is empty
+
+client : 18:40:01 [INFO ] the database is empty
+
+client : 18:40:03 [INFO ] the database is empty
+
+client : 18:40:06 [DEBUG] msg: 
+client : 18:40:06 [INFO ] sample data successfully
+
+client : 18:40:06 [INFO ] the database is empty
+
+client : 18:40:08 [INFO ] the database is empty
+
+client : 18:40:10 [INFO ] the database is empty
+
+client : 18:40:13 [DEBUG] msg: 
+client : 18:40:13 [INFO ] sample data successfully
+
+client : 18:40:13 [INFO ] the database is empty
+
+client : 18:40:15 [INFO ] the database is empty
+
+client : 18:40:49 [DEBUG] msg: 
+client : 18:40:49 [INFO ] sample data successfully
+
+client : 18:40:49 [INFO ] the database is empty
+
+client : 18:40:51 [INFO ] the database is empty
+
+client : 18:40:53 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:53 [ERROR] connect server failure: Connection refused
+
+client : 18:40:56 [DEBUG] msg: 
+client : 18:40:56 [INFO ] sample data successfully
+
+client : 18:40:56 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:56 [ERROR] connect server failure: Connection refused
+
+client : 18:40:58 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:58 [ERROR] connect server failure: Connection refused
+
+client : 18:41:00 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:41:00 [ERROR] connect server failure: Connection refused
+
+client : 18:41:02 [DEBUG] msg: 
+client : 18:41:02 [INFO ] sample data successfully
+
+client : 18:41:02 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:41:02 [ERROR] connect server failure: Connection refused
+
+client : 18:41:04 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:41:04 [ERROR] connect server failure: Connection refused
+
+client : 18:41:06 [INFO ] connect server successfully
+
+client : 18:41:08 [INFO ] the database is empty
+
+client : 18:41:11 [DEBUG] msg: 
+client : 18:41:11 [INFO ] sample data successfully
+
+client : 18:41:11 [INFO ] the database is empty
+
+client : 18:41:13 [INFO ] the database is empty
+
+client : 18:41:15 [INFO ] the database is empty
+
+client : 20:46:39 [DEBUG] msg: 
+client : 20:46:39 [INFO ] sample data successfully
+
+client : 20:46:39 [INFO ] the database is empty
+
+client : 20:46:41 [INFO ] the database is empty
+
+client : 20:46:44 [DEBUG] msg: 
+client : 20:46:44 [INFO ] sample data successfully
+
+client : 20:46:44 [INFO ] the database is empty
+
+client : 20:46:46 [INFO ] the database is empty
+
+client : 20:56:19 [ERROR] open the database failure: No such file or directory
+
+client : 20:56:31 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 20:56:32 [DEBUG] msg: 
+client : 20:56:32 [INFO ] sample data successfully
+
+client : 20:56:32 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 20:56:32 [ERROR] connect server failure: Connection refused
+
+client : 20:56:34 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 20:56:34 [ERROR] connect server failure: Connection refused
+

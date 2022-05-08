@@ -1,0 +1,272 @@
+server : 18:39:40 [INFO ] create socket sucessfully
+
+server : 18:39:40 [INFO ] i am listening all ports
+
+server : 18:39:40 [INFO ] server start to listen on port 7777
+
+server : 18:39:51 [INFO ] accept成功
+
+server : 18:39:51 [INFO ] epoll add new client socket[6] ok
+
+server : 18:39:52 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:39:51
+28.937000000000001
+
+server : 18:39:52 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:39:52 [INFO ] take_info[1]: 2022/5/8 18:39:51
+
+server : 18:39:52 [INFO ] take_info[2]: 28.937000000000001
+
+server : 18:39:54 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:39:51
+28.937000000000001
+
+server : 18:39:54 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:39:54 [INFO ] take_info[1]: 2022/5/8 18:39:51
+
+server : 18:39:54 [INFO ] take_info[2]: 28.937000000000001
+
+server : 18:39:56 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:39:51
+28.937000000000001
+
+server : 18:39:56 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:39:56 [INFO ] take_info[1]: 2022/5/8 18:39:51
+
+server : 18:39:56 [INFO ] take_info[2]: 28.937000000000001
+
+server : 18:39:59 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:39:58
+28.875
+
+server : 18:39:59 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:39:59 [INFO ] take_info[1]: 2022/5/8 18:39:58
+
+server : 18:39:59 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:01 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:39:58
+28.875
+
+server : 18:40:01 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:01 [INFO ] take_info[1]: 2022/5/8 18:39:58
+
+server : 18:40:01 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:03 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:39:58
+28.875
+
+server : 18:40:03 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:03 [INFO ] take_info[1]: 2022/5/8 18:39:58
+
+server : 18:40:03 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:06 [INFO ] socket[6] read get 38 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:5
+28.875
+
+server : 18:40:06 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:06 [INFO ] take_info[1]: 2022/5/8 18:40:58
+
+server : 18:40:06 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:08 [INFO ] socket[6] read get 38 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:5
+28.875
+
+server : 18:40:08 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:08 [INFO ] take_info[1]: 2022/5/8 18:40:58
+
+server : 18:40:08 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:10 [INFO ] socket[6] read get 38 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:5
+28.875
+
+server : 18:40:10 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:10 [INFO ] take_info[1]: 2022/5/8 18:40:58
+
+server : 18:40:10 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:13 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:12
+28.875
+
+server : 18:40:13 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:13 [INFO ] take_info[1]: 2022/5/8 18:40:12
+
+server : 18:40:13 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:15 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:12
+28.875
+
+server : 18:40:15 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:15 [INFO ] take_info[1]: 2022/5/8 18:40:12
+
+server : 18:40:15 [INFO ] take_info[2]: 28.875000000000001
+
+server : 18:40:15 [ERROR] epoll_wait get error on fd[6]: No such file or directory
+
+server : 18:40:15 [ERROR] socket[6] read failure or get disconnect and will be removed
+
+server : 18:40:45 [INFO ] create socket sucessfully
+
+server : 18:40:45 [INFO ] i am listening all ports
+
+server : 18:40:45 [INFO ] server start to listen on port 7777
+
+server : 18:40:48 [INFO ] accept成功
+
+server : 18:40:48 [INFO ] epoll add new client socket[6] ok
+
+server : 18:40:49 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:48
+28.875
+
+server : 18:40:49 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:49 [INFO ] take_info[1]: 2022/5/8 18:40:48
+
+server : 18:40:49 [INFO ] take_info[2]: 28.875
+
+server : 18:40:51 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:40:48
+28.875
+
+server : 18:40:51 [INFO ] take_info[0]: Raspberrypi007
+
+server : 18:40:51 [INFO ] take_info[1]: 2022/5/8 18:40:48
+
+server : 18:40:51 [INFO ] take_info[2]: 28.875
+
+server : 18:41:06 [INFO ] create socket sucessfully
+
+server : 18:41:06 [INFO ] i am listening all ports
+
+server : 18:41:06 [INFO ] server start to listen on port 7777
+
+server : 18:41:06 [INFO ] accept成功
+
+server : 18:41:06 [INFO ] epoll add new client socket[6] ok
+
+server : 18:41:06 [INFO ] socket[6] read get 47 bytes data from client and echo back: Raspberrypi007Raspberrypi007
+2022/5/8 18:40:55
+
+
+server : 18:41:06 [INFO ] take_info[0]: Raspberrypi007Raspberrypi007
+
+server : 18:41:06 [INFO ] take_info[1]: 2022/5/8 18:40:55
+
+server : 18:41:06 [INFO ] take_info[2]: 
+
+server : 18:41:08 [INFO ] socket[6] read get 14 bytes data from client and echo back: Raspberrypi007
+
+server : 18:41:08 [INFO ] take_info[0]: Raspberrypi007Raspberrypi007
+
+server : 18:41:11 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:41:10
+28.875
+
+server : 18:41:11 [INFO ] take_info[0]: Raspberrypi007Raspberrypi007
+
+server : 18:41:11 [INFO ] take_info[1]: 2022/5/8 18:41:10
+
+server : 18:41:11 [INFO ] take_info[2]: 28.875
+
+server : 18:41:13 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:41:10
+28.875
+
+server : 18:41:13 [INFO ] take_info[0]: Raspberrypi007Raspberrypi007
+
+server : 18:41:13 [INFO ] take_info[1]: 2022/5/8 18:41:10
+
+server : 18:41:13 [INFO ] take_info[2]: 28.875
+
+server : 18:41:15 [INFO ] socket[6] read get 39 bytes data from client and echo back: Raspberrypi007
+2022/5/8 18:41:10
+28.875
+
+server : 18:41:15 [INFO ] take_info[0]: Raspberrypi007Raspberrypi007
+
+server : 18:41:15 [INFO ] take_info[1]: 2022/5/8 18:41:10
+
+server : 18:41:15 [INFO ] take_info[2]: 28.875
+
+server : 18:41:18 [ERROR] epoll_wait get error on fd[6]: No such file or directory
+
+server : 18:41:18 [ERROR] socket[6] read failure or get disconnect and will be removed
+
+server : 20:43:43 [INFO ] create socket sucessfully
+
+server : 20:43:43 [INFO ] i am listening all ports
+
+server : 20:43:43 [INFO ] server start to listen on port 7777
+
+server : 20:46:38 [INFO ] accept成功
+
+server : 20:46:38 [INFO ] epoll add new client socket[6] ok
+
+server : 20:46:39 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 20:46:38
+29.062000000000001
+
+server : 20:46:39 [INFO ] take_info[0]: Raspberrypi007
+
+server : 20:46:39 [INFO ] take_info[1]: 2022/5/8 20:46:38
+
+server : 20:46:39 [INFO ] take_info[2]: 29.062000000000001
+
+server : 20:46:41 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 20:46:38
+29.062000000000001
+
+server : 20:46:41 [INFO ] take_info[0]: Raspberrypi007
+
+server : 20:46:41 [INFO ] take_info[1]: 2022/5/8 20:46:38
+
+server : 20:46:41 [INFO ] take_info[2]: 29.062000000000001
+
+server : 20:46:44 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 20:46:43
+29.062000000000001
+
+server : 20:46:44 [INFO ] take_info[0]: Raspberrypi007
+
+server : 20:46:44 [INFO ] take_info[1]: 2022/5/8 20:46:43
+
+server : 20:46:44 [INFO ] take_info[2]: 29.062000000000001
+
+server : 20:46:46 [INFO ] socket[6] read get 51 bytes data from client and echo back: Raspberrypi007
+2022/5/8 20:46:43
+29.062000000000001
+
+server : 20:46:46 [INFO ] take_info[0]: Raspberrypi007
+
+server : 20:46:46 [INFO ] take_info[1]: 2022/5/8 20:46:43
+
+server : 20:46:46 [INFO ] take_info[2]: 29.062000000000001
+
+server : 20:46:46 [ERROR] epoll_wait get error on fd[6]: No such file or directory
+
+server : 20:46:46 [ERROR] socket[6] read failure or get disconnect and will be removed
+
+server : 20:51:57 [INFO ] create socket sucessfully
+
+server : 20:51:57 [INFO ] i am listening all ports
+
+server : 20:51:57 [INFO ] server start to listen on port 7777
+

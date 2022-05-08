@@ -11,18 +11,12 @@
  *                 
  ********************************************************************************/
 
-#include <stdio.h>
-#include <sqlite3.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
 
-int open_database(const char *filename,sqlite3 *db);
+int open_database(const char *filename,sqlite3 **db);
 
 int save_database(sqlite3 *db,char *buf);
 
-int select_database(sqlite3 *db,char *s_data);
+int select_database(sqlite3 *db,char *s_data,int size);
 
 int delete_database(sqlite3 *db);
 

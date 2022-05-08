@@ -20,13 +20,16 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <getopt.h>
+#include <time.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <fcntl.h>
+#include <netinet/tcp.h>
 #include "client_database.c"
 #include "client.h"
-#include "gettime.h"
-#include "gettemper.h"
+#include "gettime.c"
+#include "gettemper.c"
+#include "logger.c"
 
 #define	EQUIP_NUMBER	"Raspberrypi007"
 #define DEBUG
@@ -36,23 +39,21 @@ int main(int argc,char **argv)
 {
 	int					conn_fd = -1;
 	int					rv = -1;
-	char				buf[128];
-//	struct sockaddr_in	serv_addr;
+	char				s_data[128];
 	int					serv_port;
 	char				*serv_ip = NULL;
 	int					opt;
 	char				*progname = NULL;
-	void				*optval;
-	int					optlen = sizeof(optval);
+	struct tcp_info		on;
+	int					optlen = sizeof(on);
 	char				msg[128];
 	char				character[1] = "\n";
 	int					sleep_time;
-	struct timeval      last,now;
+	int			        last = 0,now;
 	struct trans_info	tt;
-	sqlite3				*db;
+	sqlite3				*db = NULL;
 
-	int					sample_time = 0;
-	int					sample_flag = 0;
+	static int			sample_flag = 0;
 
 	/*
 	 *command ling parameter parsing
@@ -76,70 +77,74 @@ int main(int argc,char **argv)
 				break;
 		}
 	}
-	if((open_database("client_database.db",db))< 0)
+
+	if(logger_init("client.log",LOG_LEVEL_DEBUG) < 0)
 	{
-		printf("open database failure\n");
+		fprintf(stderr,"initial logger system failure\n");
 		return -1;
-		close(conn_fd);
 	}
 
+	if((open_database("client_database.db",&db))< 0)
+	{
+		log_error("open the database failure: %s\n",strerror(errno));
+		return -2;
+		close_database(db);
+	}
+
+
 	conn_fd = socket_connect(serv_ip,serv_port);
-	
-	gettimeofday(&last,NULL);
 
 	while(1)
 	{
-		gettimeofday(&now,NULL);
-		if(sleep_time <= (now.tv_sec - last.tv_sec))
+		now = time((time_t *)NULL);
+		sample_flag = 0;
+
+		if(sleep_time <= (now - last))
 		{
-			printf("开始采样\n");
+
+			printf("starting sample\n");
 			if(pack_info(&tt,msg,sizeof(msg)) < 0)
 			{
-				printf("sample data failure\n");
+				log_error("sample data failure: %s\n",strerror(errno));
 				continue;
 			}
 			else
 			{
-				printf("sample data successfully\n");
+				log_info("sample data successfully\n");
 				sample_flag = 1;
 			}
-			printf("msg : %s\n",msg);
-
-			last.tv_sec = now.tv_sec;
+			last = now;
 		}
 		if(conn_fd < 0)
 		{
 			conn_fd = socket_connect(serv_ip,serv_port);
 			if(conn_fd < 0)
 			{
-				if(sample_flag)
-				{
-					if(save_database(db,msg) != 0)
-					{
-						printf("save data failure\n");
-					}
-				}
+				log_error("connect server failure: %s\n",strerror(errno));
+				sleep(2);
 				conn_fd = -1;
+				close(conn_fd);
 			}
 			else
 			{
-				printf("connect server successfully\n");
-				conn_fd = 1;
+				log_info("connect server successfully\n");
 			}
 			
 		}
 
-		setsockopt(conn_fd,SOL_SOCKET,SO_REUSEADDR,optval,optlen);
-		if(optval <= 0)
+		getsockopt(conn_fd,IPPROTO_TCP,TCP_INFO,&on,&optlen);
+
+		if(on.tcpi_state != TCP_ESTABLISHED)
 		{
 			if(sample_flag)
 			{
 				if(save_database(db,msg) != 0)
 				{
-					printf("save data failure\n");
+					log_error("save data failure: %s\n",strerror(errno));
 				}
 			}
 			conn_fd = -1;
+			close(conn_fd);
 		}
 		else				//网络连接正常
 		{
@@ -147,38 +152,38 @@ int main(int argc,char **argv)
 			{
 				if(write(conn_fd,msg,strlen(msg)) < 0)
 				{
-					printf("send data to server failure\n");
-				}
-				if(select_database(db,buf) > 0)		//数据库中有残余的数据
-				{
-					if(write(conn_fd,msg,strlen(msg)) < 0)
+					log_error("send data to server failure: %s\n",strerror(errno));
+					if(save_database(db,msg) <  0)
 					{
-						printf("send data to server failure\n");
+						log_error("save data failure: %s\n",strerror(errno));
+					}
+				}
+				if(select_database(db,s_data,sizeof(s_data)) >= 0)		//数据库中有残余的数据
+				{
+					if(write(conn_fd,s_data,strlen(s_data)) < 0)
+					{
+						log_error("send data to server failure: %s\n",strerror(errno));
 					}
 					else
-					{
-						printf("send data to server successfull\n");
-
-						if(delete_database(db) != 0)
+					{	
+						if(delete_database(db) < 0)
 						{
-							printf("delete data failure\n");
+							log_error("delete data failure: %s\n",strerror(errno));
 						}
-						else
-						{
-							printf("delete data successfully\n");
-						}
-
 					}
 				}
 				else
 				{
-					printf("the database is empty\n");
+					log_info("the database is empty\n");
 				}
+				sleep(2);
+				printf("\n\n");
 			}
 		}
 	}
 close(conn_fd);
 sqlite3_close(db);
+return 0;
 }
 
 static inline void print_usage(char *progname)
@@ -206,7 +211,8 @@ int socket_connect(char *ip,int port)
 
 	if(connfd < 0)
 	{
-		printf("create socket failure: %d\n",strerror(errno));
+		log_error("create socket failure: %s\n",strerror(errno));
+
 		return -1;
 	}
 	
@@ -217,18 +223,26 @@ int socket_connect(char *ip,int port)
 
 	if(connect(connfd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
 	{
-		printf("connect to server [%s:%d] failure: %s\n",ip,port,strerror(errno));
+		log_error("connect to server [%s:%d] failure : %s\n",ip,port,strerror(errno));
 		return -1;
 	}
 	return connfd;
 }
+
 int pack_info(struct trans_info *info,char *msg,int size)
 {
-	strncpy(info->sno,"rpi007",sizeof("rpi007"));
+	strncpy(info->sno,EQUIP_NUMBER,sizeof(EQUIP_NUMBER));
 	getTime(info->time);
 	getTemper(info->temperature);
 
+	memset(msg,0,sizeof(msg));
 	snprintf(msg,size,"%s\n%s\n%s",info->sno,info->time,info->temperature);
+
+	log_debug("msg: %S\n",msg);
+#ifdef DEBUG
+	printf("msg: %s\n",msg);
+#endif
+	printf("\n");
 
 	return 0;
 

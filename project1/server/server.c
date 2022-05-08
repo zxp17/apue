@@ -26,11 +26,11 @@
 #include <sys/epoll.h>
 #include <sqlite3.h>
 #include "server.h"
-//#include "gettime.h"
-#include "create_database.h"
+#include "create_database.c"
+#include "logger.c"
 
 #define	MAX_EVENTS		512
-//#define DEBUG
+#define DEBUG
 
 
 int main(int argc,char **argv)
@@ -89,10 +89,16 @@ int main(int argc,char **argv)
 		}
 	}
 
+	if(logger_init("server.log",LOG_LEVEL_DEBUG) < 0)
+	{
+		fprintf(stderr,"initial logger system failure\n");
+		return -1;
+	}
+
 	if(!serv_port)
 	{
 		print_usage(progname);
-		return -1;
+		return -2;
 	}
 
 	set_socket_rlimit();
@@ -100,10 +106,10 @@ int main(int argc,char **argv)
 
 	if((listenfd = socket_server_init(NULL,serv_port)) < 0)
 	{
-		printf("BAD NEWS:  server listen on port %d failure\n",serv_port);
-		return -2;
+		log_error("BAD NEW: server listen on port %d failute: %s\n",serv_port,strerror(errno));
+		return -3;
 	}
-	printf(" server start to listen on port %d\n",serv_port);
+	log_info("server start to listen on port %d\n",serv_port);
 
 
 	if( daemon_run )		//set program running on background
@@ -119,8 +125,8 @@ int main(int argc,char **argv)
 	 * */
 	if((epollfd = epoll_create(MAX_EVENTS)) < 0)
 	{
-		printf("epoll_create() failure: %s\n",strerror(errno));
-		return -3;
+		log_error("epoll_create() failure : %s\n",strerror(errno));
+		return -4;
 	}
 
 	event.events = EPOLLIN;			
@@ -129,8 +135,8 @@ int main(int argc,char **argv)
 
 	if( epoll_ctl(epollfd,EPOLL_CTL_ADD,listenfd,&event) < 0 )
 	{
-		printf("epoll add listen socket failure: %s\n",strerror(errno));
-		return -4;
+		log_error("epoll add socket failure : %s\n",strerror(errno));
+		return -5;
 	}
 
 
@@ -142,12 +148,12 @@ int main(int argc,char **argv)
 
 		if(events < 0)
 		{
-			printf("epoll_wait failure: %s\n",strerror(errno));
+			log_error("epoll_wait failure: %s\n",strerror(errno));
 			break;
 		}
 		else if(0 == events)		
 		{
-			printf("epoll_wait get timeout\n");
+			log_warn("epoll_wait get timeout\n");
 			continue;
 		}
 
@@ -155,7 +161,7 @@ int main(int argc,char **argv)
 		{
 			if((event_array[i].events&EPOLLERR) || (event_array[i].events&EPOLLHUP))
 			{
-				printf("epoll_wait get error on fd[%d]: %s\n",event_array[i].data.fd,strerror(errno));
+				log_error("epoll_wait get error on fd[%d]: %s\n",event_array[i].data.fd,strerror(errno));
 				epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 		
 				close(event_array[i].data.fd);
@@ -165,11 +171,11 @@ int main(int argc,char **argv)
 			{
 				if((connfd = accept(listenfd,(struct sockaddr *)NULL,NULL)) < 0)
 				{
-					printf("accept new client failure: %s\n",strerror(errno));
+					log_error("accept new client failure : %s\n",strerror(errno));
 					continue;
 				}
 #ifdef DEBUG
-				printf("accept成功\n");
+				log_info("accept成功\n");
 #endif
 				event.data.fd = connfd;
 				event.events = EPOLLIN;			
@@ -180,12 +186,12 @@ int main(int argc,char **argv)
 				 * */
 				if(epoll_ctl(epollfd,EPOLL_CTL_ADD,connfd,&event) < 0)
 				{
-					printf("epoll add client socket failure: %s\n",strerror(errno));
+					log_error("epoll add client socket failure: %s\n",strerror(errno));
 					close(event_array[i].data.fd);
 					continue;
 				}
 #ifdef DEBUG
-				printf("epoll add new client socket[%d] ok\n",connfd);
+				log_info("epoll add new client socket[%d] ok\n",connfd);
 #endif
 			}
 
@@ -195,7 +201,7 @@ int main(int argc,char **argv)
 
 				if((rv = read(event_array[i].data.fd,buf,sizeof(buf))) <= 0)
 				{
-					printf("socket[%d] read failure or get disconnect and will be removed\n",event_array[i].data.fd);
+					log_error("socket[%d] read failure or get disconnect and will be removed\n",event_array[i].data.fd);
 					epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 					close(event_array[i].data.fd);
 					continue;
@@ -203,7 +209,7 @@ int main(int argc,char **argv)
 				else
 				{
 					printf("\n\n");
-					printf("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
+					log_info("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
 
 
 					/* 
@@ -223,7 +229,7 @@ int main(int argc,char **argv)
 					for(y = 0;y <= x; y++)
 					{
 #ifdef DEBUG
-						printf("take_info[%d]: %s\n",y,take_info[y]);
+						log_info("take_info[%d]: %s\n",y,take_info[y]);
 #endif
 					}
 					free(p1);
@@ -238,7 +244,7 @@ int main(int argc,char **argv)
 
 					if(write(event_array[i].data.fd,buf,rv) < 0)
 					{
-						printf("sokcet[%d] write failure: %s\n",event_array[i].data.fd,strerror(errno));
+						log_error("sokcet[%d] write failure: %s\n",event_array[i].data.fd,strerror(errno));
 						epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 						close(event_array[i].data.fd);
 					}
@@ -268,11 +274,11 @@ int socket_server_init(char *listen_ip,int listen_port)
 	 * */
 	if((listenfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
 	{
-		printf("create socket failure: %d\n",strerror(errno));
+		log_error("create socket failure: %d\n",strerror(errno));
 		return -1;
 	}
 #ifdef	DEBUG
-	printf("create socket sucessfully\n");
+	log_info("create socket sucessfully\n");
 #endif
 
 	//set socket port reuseable,fix 'address already in use' bug when socket server restart
@@ -288,7 +294,7 @@ int socket_server_init(char *listen_ip,int listen_port)
 	if( !listen_ip )	
 	{
 		serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-		printf("i am listening all ports\n");
+		log_info("i am listening all ports\n");
 	}
 	else	
 	{
@@ -298,7 +304,7 @@ int socket_server_init(char *listen_ip,int listen_port)
 		 * */
 		if(inet_pton(AF_INET,listen_ip,&serveraddr.sin_addr) <= 0)
 		{
-			printf("inet_pton() set listen ip failure\n");
+			log_error("inet_pton() set listen ip failure\n");
 			rv = -2;
 			goto cleanup;
 		}
@@ -309,7 +315,7 @@ int socket_server_init(char *listen_ip,int listen_port)
 	 * */
 	if(bind(listenfd,(struct sockaddr *)&serveraddr,sizeof(serveraddr)) < 0)
 	{
-		printf("bind tcp socket failure: %s\n",strerror(errno));
+		log_error("bind tcp socket failure: %s\n",strerror(errno));
 		rv = -3;
 		goto cleanup;
 	}
@@ -319,7 +325,7 @@ int socket_server_init(char *listen_ip,int listen_port)
 	 * */
 	if(listen(listenfd,77) < 0)
 	{
-		printf("listen failure: %s\n",strerror(errno));
+		log_error("listen failure: %s\n",strerror(errno));
 		rv = -4;
 		goto cleanup;
 	}
