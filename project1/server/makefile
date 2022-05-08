@@ -24,12 +24,12 @@ all: dynamic_lib dynamic_link run_server
 #dynamic_lib目标用来编译生成动态库
 
 dynamic_lib:
-#	${CC} -shared -fPIC logger.c -o lib${LIBNAME}.so -I ${I_PATH} -L ${L_PATH} -lsqlite3
-	${CC} server.c -o ${APPNAME} -I ${I_PATH} -L ${L_PATH} -lsqlite3	
+	${CC} -shared -fPIC create_database.c logger.c -o libmyserver.so -I ${I_PATH} -L ${L_PATH} -lsqlite3
 
 #dynamic_link用来链接
 dynamic_link:
-#	${CC} server.c -o ${APPNAME} -I ${INSTPATH} -l${LIBNAME} -I ${I_PATH} -L ${L_PATH} -lsqlite3 
+	cp lib${LIBNAME}.so ${L_PATH}
+	${CC} server.c -o ${APPNAME} -I ${I_PATH} -L ${L_PATH} -lsqlite3 -l${LIBNAME}
 	
 
 #make server run

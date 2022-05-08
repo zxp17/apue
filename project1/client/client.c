@@ -22,14 +22,15 @@
 #include <getopt.h>
 #include <time.h>
 #include <stdlib.h>
+#include <sqlite3.h>
 #include <sys/time.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
-#include "client_database.c"
+#include "client_database.h"
 #include "client.h"
-#include "gettime.c"
+#include "gettime.h"
 #include "gettemper.c"
-#include "logger.c"
+#include "logger.h"
 
 #define	EQUIP_NUMBER	"Raspberrypi007"
 #define DEBUG

@@ -161,3 +161,25 @@ client : 20:56:34 [ERROR] connect to server [127.0.0.1:7777] failure : Connectio
 
 client : 20:56:34 [ERROR] connect server failure: Connection refused
 
+client : 23:46:50 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 23:46:51 [DEBUG] msg: 
+client : 23:46:51 [INFO ] sample data successfully
+
+client : 23:46:51 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 23:46:51 [ERROR] connect server failure: Connection refused
+
+client : 23:57:42 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 23:57:43 [DEBUG] msg: 
+client : 23:57:43 [INFO ] sample data successfully
+
+client : 23:57:43 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 23:57:43 [ERROR] connect server failure: Connection refused
+
+client : 23:57:45 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 23:57:45 [ERROR] connect server failure: Connection refused
+

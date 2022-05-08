@@ -26,8 +26,8 @@
 #include <sys/epoll.h>
 #include <sqlite3.h>
 #include "server.h"
-#include "create_database.c"
-#include "logger.c"
+#include "create_database.h"
+#include "logger.h"
 
 #define	MAX_EVENTS		512
 #define DEBUG
