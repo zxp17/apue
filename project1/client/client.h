@@ -48,3 +48,9 @@ static inline void print_usage(char *progname);
  * */
 
 int socket_connect(char *ip,int port);
+
+
+/* 
+ *function: pack data
+ * */
+int pack_info(struct trans_info *info,char *msg,int size);

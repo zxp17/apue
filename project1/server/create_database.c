@@ -14,11 +14,8 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <stdlib.h>
+#include "create_database.h"
 
-static int callback(void *NotUsed,int argc,char **argv,char **azColName);
-int open_database(const char *filename,sqlite3 **db);
-int execute_exec(sqlite3 *db,const char *sql);
-int close_database(sqlite3* db);
 
 /* 
  *open the database

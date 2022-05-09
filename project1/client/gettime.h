@@ -10,5 +10,13 @@
  *      ChangeLog:  1, Release initial version on "08/05/22 19:10:42"
  *                 
  ********************************************************************************/
+#ifndef	_GETTIME_H_
+#define _GETTIME_H_
 
+
+/* 
+ *function:get time
+ * */
 void getTime(char *s);
+
+#endif

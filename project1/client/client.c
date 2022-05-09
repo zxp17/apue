@@ -28,13 +28,17 @@
 #include <netinet/tcp.h>
 #include "client_database.h"
 #include "client.h"
+#include <signal.h>
 #include "gettime.h"
 #include "gettemper.c"
 #include "logger.h"
 
 #define	EQUIP_NUMBER	"Raspberrypi007"
 #define DEBUG
-int pack_info(struct trans_info *info,char *msg,int size);
+
+void sig_out(int signum);
+
+int						g_sig_out = 0;
 
 int main(int argc,char **argv)
 {
@@ -50,8 +54,8 @@ int main(int argc,char **argv)
 	char				msg[128];
 	char				character[1] = "\n";
 	int					sleep_time;
-	int			        last = 0,now;
-	struct trans_info	tt;
+	int					last = 0,now;
+	struct trans_info	t_info;
 	sqlite3				*db = NULL;
 
 	static int			sample_flag = 0;
@@ -59,7 +63,7 @@ int main(int argc,char **argv)
 	/*
 	 *command ling parameter parsing
 	 * */
-	while((opt = getopt_long(argc,argv,"i:p:s:h",long_options,NULL)) != -1)
+	while((opt = getopt_long(argc,argv,"di:p:s:h",long_options,NULL)) != -1)
 	{
 		switch(opt)
 		{
@@ -78,13 +82,15 @@ int main(int argc,char **argv)
 				break;
 		}
 	}
-
+	signal(SIGTERM,sig_out);		//register signal
+	
+	
 	if(logger_init("client.log",LOG_LEVEL_DEBUG) < 0)
 	{
 		fprintf(stderr,"initial logger system failure\n");
 		return -1;
 	}
-
+ 
 	if((open_database("client_database.db",&db))< 0)
 	{
 		log_error("open the database failure: %s\n",strerror(errno));
@@ -95,7 +101,7 @@ int main(int argc,char **argv)
 
 	conn_fd = socket_connect(serv_ip,serv_port);
 
-	while(1)
+	while(!g_sig_out)
 	{
 		now = time((time_t *)NULL);
 		sample_flag = 0;
@@ -104,7 +110,7 @@ int main(int argc,char **argv)
 		{
 
 			printf("starting sample\n");
-			if(pack_info(&tt,msg,sizeof(msg)) < 0)
+			if(pack_info(&t_info,msg,sizeof(msg)) < 0)
 			{
 				log_error("sample data failure: %s\n",strerror(errno));
 				continue;
@@ -247,4 +253,12 @@ int pack_info(struct trans_info *info,char *msg,int size)
 
 	return 0;
 
+}
+void sig_out(int signum)
+{
+	if(SIGTERM == signum)
+	{
+		log_warn("the profram is exit\n");
+		g_sig_out = 1;
+	}
 }

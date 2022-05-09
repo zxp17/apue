@@ -23,7 +23,7 @@ all: dynamic_lib dynamic_link run_client
 
 #dynamic_lib 目标用来编译生成动态库，它是all目标的一个依赖
 dynamic_lib:
-	${CC} -shared -fPIC -o client_database.c gettime.c gettemper.c logger.c lib${LIBNAME}.so -I ${I_PATH} -L ${L_PATH} -lsqlite3
+	${CC} -shared -fPIC  client_database.c gettime.c gettemper.c logger.c -o  lib${LIBNAME}.so -I ${I_PATH} -L ${L_PATH} -lsqlite3
 
 
 #dynamic_link 用来链接动态库
@@ -38,5 +38,5 @@ run_client:
 
 clean: 
 	rm -f ${APPNAME}
-	rm -f *.o
+	rm -f *.so
 

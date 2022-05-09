@@ -10,5 +10,13 @@
  *      ChangeLog:  1, Release initial version on "08/05/22 19:12:00"
  *                 
  ********************************************************************************/
+#ifndef	_GETTEMPER_H_
+#define	_GETTEMPER_H_
 
+
+/* 
+ *function: get temperature
+ * */
 void getTemper(char *s);
+
+#endif

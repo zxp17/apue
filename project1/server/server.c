@@ -55,13 +55,13 @@ int main(int argc,char **argv)
 	 *the parsed data is stored in an array
 	 * */
 	char				*p = NULL;
-	char				*p1 = (char*)malloc(1024);
-	char				take_info[3][256] = {0};
+	char				*p1 = (char*)malloc(128);
+	char				take_info[3][128] = {0};
 
 	/* 
 	 *sql knowledge
 	 * */
-	char				sql[2048];
+	char				sql[256];
 	int					rc;
 	sqlite3				*db;
 
@@ -106,9 +106,15 @@ int main(int argc,char **argv)
 
 	if((listenfd = socket_server_init(NULL,serv_port)) < 0)
 	{
+#ifdef DEBUG		
+		printf("BAD NEW: server listen on port %d failure : %s\n",serv_port,strerror(errno));
+#endif 		
 		log_error("BAD NEW: server listen on port %d failute: %s\n",serv_port,strerror(errno));
 		return -3;
 	}
+#ifdef DEBUG	
+	printf("server start to listen on port %d\n",serv_port);
+#endif	
 	log_info("server start to listen on port %d\n",serv_port);
 
 
@@ -135,6 +141,9 @@ int main(int argc,char **argv)
 
 	if( epoll_ctl(epollfd,EPOLL_CTL_ADD,listenfd,&event) < 0 )
 	{
+#ifdef DEBUG		
+		printf("epoll add socket failure: %s\n",strerror(errno));
+#endif		
 		log_error("epoll add socket failure : %s\n",strerror(errno));
 		return -5;
 	}
@@ -148,11 +157,17 @@ int main(int argc,char **argv)
 
 		if(events < 0)
 		{
+#ifdef DEBUG			
+			printf("epoll_wait failure: %s\n",strerror(errno));
+#endif			
 			log_error("epoll_wait failure: %s\n",strerror(errno));
 			break;
 		}
 		else if(0 == events)		
 		{
+#ifdef DEBUG			
+			printf("epoll_wait get timeout\n");
+#endif			
 			log_warn("epoll_wait get timeout\n");
 			continue;
 		}
@@ -161,6 +176,9 @@ int main(int argc,char **argv)
 		{
 			if((event_array[i].events&EPOLLERR) || (event_array[i].events&EPOLLHUP))
 			{
+#ifdef DEBUG				
+				printf("epoll_wait get error on fd[%d]: %s\n",event_array[i].data.fd,strerror(errno));
+#endif				
 				log_error("epoll_wait get error on fd[%d]: %s\n",event_array[i].data.fd,strerror(errno));
 				epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 		
@@ -171,6 +189,9 @@ int main(int argc,char **argv)
 			{
 				if((connfd = accept(listenfd,(struct sockaddr *)NULL,NULL)) < 0)
 				{
+#ifdef DEBUG					
+					printf("accept new client failure: %s\n",strerror(errno));
+#endif					
 					log_error("accept new client failure : %s\n",strerror(errno));
 					continue;
 				}
@@ -186,6 +207,9 @@ int main(int argc,char **argv)
 				 * */
 				if(epoll_ctl(epollfd,EPOLL_CTL_ADD,connfd,&event) < 0)
 				{
+#ifdef DEBUG					
+					printf("epoll add client socket failure: %s\n",strerror(errno));
+#endif					
 					log_error("epoll add client socket failure: %s\n",strerror(errno));
 					close(event_array[i].data.fd);
 					continue;
@@ -201,6 +225,9 @@ int main(int argc,char **argv)
 
 				if((rv = read(event_array[i].data.fd,buf,sizeof(buf))) <= 0)
 				{
+#ifdef DEBUG					
+					printf("socket[%d] read failure or get disconnect and will be remove\n",event_array[i].data.fd);
+#endif					
 					log_error("socket[%d] read failure or get disconnect and will be removed\n",event_array[i].data.fd);
 					epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 					close(event_array[i].data.fd);
@@ -209,6 +236,9 @@ int main(int argc,char **argv)
 				else
 				{
 					printf("\n\n");
+#ifdef DEBUG					
+					printf("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
+#endif					
 					log_info("socket[%d] read get %d bytes data from client and echo back: %s\n",event_array[i].data.fd,rv,buf);
 
 
@@ -244,6 +274,9 @@ int main(int argc,char **argv)
 
 					if(write(event_array[i].data.fd,buf,rv) < 0)
 					{
+#ifdef DEBUG						
+						printf("sokcet[%d] write failure: %s\n",event_array[i].data.fd,strerror(errno));
+#endif						
 						log_error("sokcet[%d] write failure: %s\n",event_array[i].data.fd,strerror(errno));
 						epoll_ctl(epollfd,EPOLL_CTL_DEL,event_array[i].data.fd,NULL);
 						close(event_array[i].data.fd);
