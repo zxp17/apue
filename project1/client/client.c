@@ -25,18 +25,18 @@
 #include <sqlite3.h>
 #include <sys/time.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <libgen.h>
 #include <netinet/tcp.h>
 #include "client_database.h"
 #include "client.h"
-#include <signal.h>
 #include "gettime.h"
-#include "gettemper.c"
+#include "gettemper.h"
 #include "logger.h"
 
 #define	EQUIP_NUMBER	"Raspberrypi007"
 #define DEBUG
 
-void sig_out(int signum);
 
 int						g_sig_out = 0;
 
@@ -47,6 +47,7 @@ int main(int argc,char **argv)
 	char				s_data[128];
 	int					serv_port;
 	char				*serv_ip = NULL;
+	int					daemon_run = 0;
 	int					opt;
 	char				*progname = NULL;
 	struct tcp_info		on;
@@ -59,6 +60,8 @@ int main(int argc,char **argv)
 	sqlite3				*db = NULL;
 
 	static int			sample_flag = 0;
+
+	progname = basename(argv[0]);
 
 	/*
 	 *command ling parameter parsing
@@ -83,6 +86,11 @@ int main(int argc,char **argv)
 		}
 	}
 	signal(SIGTERM,sig_out);		//register signal
+
+	if(!serv_ip || !serv_port)
+	{
+		print_usage(progname);
+	}
 	
 	
 	if(logger_init("client.log",LOG_LEVEL_DEBUG) < 0)
@@ -90,7 +98,12 @@ int main(int argc,char **argv)
 		fprintf(stderr,"initial logger system failure\n");
 		return -1;
 	}
- 
+
+	if(daemon_run)
+	{
+		daemon(0,0);
+	}
+	
 	if((open_database("client_database.db",&db))< 0)
 	{
 		log_error("open the database failure: %s\n",strerror(errno));

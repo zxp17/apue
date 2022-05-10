@@ -295,3 +295,101 @@ client : 20:37:24 [ERROR] connect to server [127.0.0.1:7777] failure : Connectio
 
 client : 20:37:24 [ERROR] connect server failure: Connection refused
 
+client : 18:15:13 [ERROR] open the database failure: No such file or directory
+
+client : 18:15:28 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:15:29 [DEBUG] msg: 
+client : 18:15:29 [INFO ] sample data successfully
+
+client : 18:15:29 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:15:29 [ERROR] connect server failure: Connection refused
+
+client : 18:23:45 [ERROR] open the database failure: No such file or directory
+
+client : 18:29:22 [ERROR] open the database failure: No such file or directory
+
+client : 18:39:52 [ERROR] open the database failure: No such file or directory
+
+client : 18:40:21 [ERROR] open the database failure: No such file or directory
+
+client : 18:40:27 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:28 [DEBUG] msg: 
+client : 18:40:28 [INFO ] sample data successfully
+
+client : 18:40:28 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:28 [ERROR] connect server failure: Connection refused
+
+client : 18:40:30 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:30 [ERROR] connect server failure: Connection refused
+
+client : 18:40:33 [DEBUG] msg: 
+client : 18:40:33 [INFO ] sample data successfully
+
+client : 18:40:33 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:33 [ERROR] connect server failure: Connection refused
+
+client : 18:40:35 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:40:35 [ERROR] connect server failure: Connection refused
+
+client : 18:48:52 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:48:53 [DEBUG] msg: 
+client : 18:48:53 [INFO ] sample data successfully
+
+client : 18:48:53 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:48:53 [ERROR] connect server failure: Connection refused
+
+client : 18:49:26 [ERROR] open the database failure: No such file or directory
+
+client : 18:50:09 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:50:10 [DEBUG] msg: 
+client : 18:50:10 [INFO ] sample data successfully
+
+client : 18:50:10 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:50:10 [ERROR] connect server failure: Connection refused
+
+client : 18:54:59 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:55:00 [DEBUG] msg: 
+client : 18:55:00 [INFO ] sample data successfully
+
+client : 18:55:00 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 18:55:00 [ERROR] connect server failure: Connection refused
+
+client : 19:01:30 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 19:01:31 [DEBUG] msg: 
+client : 19:01:31 [INFO ] sample data successfully
+
+client : 19:01:31 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 19:01:31 [ERROR] connect server failure: Connection refused
+
+client : 19:01:33 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 19:01:33 [ERROR] connect server failure: Connection refused
+
+client : 19:11:43 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 19:11:44 [DEBUG] msg: 
+client : 19:11:44 [INFO ] sample data successfully
+
+client : 19:11:44 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 19:11:44 [ERROR] connect server failure: Connection refused
+
+client : 19:11:46 [ERROR] connect to server [127.0.0.1:7777] failure : Connection refused
+
+client : 19:11:46 [ERROR] connect server failure: Connection refused
+
