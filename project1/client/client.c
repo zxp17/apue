@@ -54,7 +54,7 @@ int main(int argc,char **argv)
 	int					optlen = sizeof(on);
 	char				msg[128];
 	char				character[1] = "\n";
-	int					sleep_time;
+	int					interval_time;
 	int					last = 0,now;
 	struct trans_info	t_info;
 	sqlite3				*db = NULL;
@@ -80,7 +80,7 @@ int main(int argc,char **argv)
 				print_usage(progname);
 				return EXIT_SUCCESS;
 			case 's':
-				sleep_time = atoi(optarg);
+				interval_time = atoi(optarg);
 			default:
 				break;
 		}
@@ -92,6 +92,11 @@ int main(int argc,char **argv)
 		print_usage(progname);
 	}
 	
+
+	if(daemon_run)
+	{
+		daemon(1,0);
+	}
 	
 	if(logger_init("client.log",LOG_LEVEL_DEBUG) < 0)
 	{
@@ -99,16 +104,11 @@ int main(int argc,char **argv)
 		return -1;
 	}
 
-	if(daemon_run)
-	{
-		daemon(0,0);
-	}
 	
 	if((open_database("client_database.db",&db))< 0)
 	{
 		log_error("open the database failure: %s\n",strerror(errno));
 		return -2;
-		close_database(db);
 	}
 
 
@@ -119,7 +119,7 @@ int main(int argc,char **argv)
 		now = time((time_t *)NULL);
 		sample_flag = 0;
 
-		if(sleep_time <= (now - last))
+		if(interval_time <= (now - last))
 		{
 
 			printf("starting sample\n");
@@ -142,8 +142,8 @@ int main(int argc,char **argv)
 			{
 				log_error("connect server failure: %s\n",strerror(errno));
 				sleep(2);
-				conn_fd = -1;
 				close(conn_fd);
+				conn_fd = -1;
 			}
 			else
 			{
@@ -163,8 +163,8 @@ int main(int argc,char **argv)
 					log_error("save data failure: %s\n",strerror(errno));
 				}
 			}
-			conn_fd = -1;
 			close(conn_fd);
+			conn_fd = -1;
 		}
 		else				//网络连接正常
 		{
@@ -176,6 +176,8 @@ int main(int argc,char **argv)
 					if(save_database(db,msg) <  0)
 					{
 						log_error("save data failure: %s\n",strerror(errno));
+						close(conn_fd);
+						conn_fd = -1;
 					}
 				}
 				if(select_database(db,s_data,sizeof(s_data)) >= 0)		//数据库中有残余的数据
@@ -183,6 +185,8 @@ int main(int argc,char **argv)
 					if(write(conn_fd,s_data,strlen(s_data)) < 0)
 					{
 						log_error("send data to server failure: %s\n",strerror(errno));
+						close(conn_fd);
+						conn_fd = -1;
 					}
 					else
 					{	
