@@ -95,7 +95,7 @@ int main(int argc,char **argv)
 
 	if(daemon_run)
 	{
-		daemon(1,0);
+		daemon(1,1);
 	}
 	
 	if(logger_init("client.log",LOG_LEVEL_DEBUG) < 0)
