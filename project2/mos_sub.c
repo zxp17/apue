@@ -184,6 +184,7 @@ int main(int argc,char *argv[])
 	while(running)
 	{
 		mosquitto_loop(mosq,-1,1);
+		printf("\n\n");
 	}
 
 	//结束后的清理工作

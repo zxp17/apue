@@ -23,6 +23,8 @@
 #include <arpa/inet.h>
 #include <getopt.h>
 #include <mosquitto.h>
+#include <signal.h>
+#include <time.h>
 #include "mos_pub.h"
 #include "gettime.c"
 #include "gettemper.c"
@@ -37,6 +39,7 @@
 
 //定义运行标志决定是否需要结束
 static int running = 1;
+static int g_sig_out = 0;
 
 void my_connect_callback(struct mosquitto *mosq,void *obj,int rc)
 {
@@ -56,6 +59,7 @@ void my_publish_callback(struct mosquitto *mosq,void *obj,int mid)
 }
 
 void print_usage(const char *program_name);
+void sig_out(int signum);
 
 int main(int argc,char *argv[])
 {
@@ -78,6 +82,9 @@ int main(int argc,char *argv[])
 	char				*test_message = NULL;
 	struct trans_info	info;
 	char				msg[128];
+	int					last = 0,now;
+	int					sample_flag = 0;
+	float				interval_time = 5;
 
 	program_name = basename(argv[0]);
 
@@ -159,6 +166,7 @@ int main(int argc,char *argv[])
 
 	//创建一个发布端实例
 	mosq = mosquitto_new(NULL,true,NULL);
+
 	if(NULL == mosq)
 	{
 		printf("new pub_test error\n");
@@ -177,8 +185,6 @@ int main(int argc,char *argv[])
 	printf("mosq: %s\nHOST: %s\nPORT: %d\nKEEP_ALIVE: %d\n",mosq,HOST,PORT,KEEP_ALIVE);
 	ret = mosquitto_connect(mosq,HOST,PORT,KEEP_ALIVE);
 
-	printf("ret的返回值是多少：%d\n",ret);
-
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("connect broker error: %s\n",strerror(errno));
@@ -196,27 +202,37 @@ int main(int argc,char *argv[])
 		printf("mosquitto loop error\n");
 		return -1;
 	}
-	while(fgets(buff,MSG_MAX_SIZE,stdin) != NULL)
+	while(!g_sig_out)
 	{
-
-		//发布消息
-		printf("即将开始采集信息\n");
-		if(pack_info(&info,msg,sizeof(msg)) < 0)
+		now = time((time_t *)NULL);
+		sample_flag = 0;
+		if(interval_time < (now-last))			//it is time to sample
 		{
-			printf("package data failure!!\n");
+			printf("start sampling!!");
+			if(pack_info(&info,msg,sizeof(msg)) < 0)
+			{
+				printf("sampling failure\n");
+			}
+			else
+			{
+				printf("sampling successfully\n");
+				sample_flag = 1;
+			}
+			last = now;
 		}
 		else
 		{
-			printf("the data is: %s\n",msg);
+			//publish data
+			if(MOSQ_ERR_SUCCESS != (mosquitto_publish(mosq,NULL,"topic1",strlen(msg)+1,msg,0,retain)))
+			{
+				printf("publish data failure\n");
+				retain = 1;
+			}
+			sleep(2);
+			memset(msg,0,sizeof(msg));
 		}
-		printf("采集信息完毕\n");
-		sleep(5);
-		if(MOSQ_ERR_SUCCESS != (mosquitto_publish(mosq,NULL,"topic1",strlen(buff)+1,buff,0,retain)))
-		{
-			printf("发送消息失败: %s\n",strerror(errno));
-			retain = 1;
-		}
-		memset(buff,0,sizeof(buff));
+		printf("\n\n");
+
 	}
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
@@ -247,6 +263,14 @@ int pack_info(struct trans_info *info,char *msg,int size)
 	getTemper(info->temperature);
 
 	memset(msg,0,sizeof(msg));
-	snprintf(msg,size,"%s\n%s\n%S",info->sno,info->time,info->temperature);
+	snprintf(msg,size,"%s\n%s\n%s",info->sno,info->time,info->temperature);
 	printf("\n");
+}
+void sig_out(int signum)
+{
+	if(SIGTERM == signum)
+	{
+		printf("the program is exit\n");
+		g_sig_out = 1;
+	}
 }
