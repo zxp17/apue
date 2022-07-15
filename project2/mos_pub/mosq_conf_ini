@@ -1,0 +1,32 @@
+[ali]
+
+host		=iot-06z00cu7pulrouc.mqtt.iothub.aliyuncs.com
+port		=1883
+username	=mqtt&hh80DrvPW3T
+passwd		=07a106739ed0a9052dc40677ed201202a57f8395e4b96c4b9b37afd8f4d45e52
+id			=hh80DrvPW3T.mqtt|securemode=2,signmethod=hmacsha256,timestamp=1657599841531|
+topic		=/sys/hh80DrvPW3T/mqtt/thing/event/property/post
+
+[json]
+method		=thing.service.property.set
+id			=xz
+identifier	=CurrentTemperature
+version		=1.1.0
+Qos			=0
+
+;---------------------------------------------------------------------------------------------------
+
+[mqtt_server_addr]
+host		=PWS8SWIY4D.iotcloud.tencentdevices.com
+port		=1883
+
+[user_passwd]
+username	=PWS8SWIY4D_ds18b20_;12010126;555f6;1665504000
+passwd		=e0e402da61b9446111d36ab50bcd0ee5d4f492609434c8e68126f38c2a313984;hmacsha256
+
+[client_id]
+id			=PWS8SWIY4D_ds18b20_
+
+[pub_topic]
+topic		=$shadow/operation/PWS8SWIY4D/_ds18b20_
+

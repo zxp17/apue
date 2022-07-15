@@ -1,0 +1,35 @@
+[mqtt_server_addr]
+host		=iot-06z00cu7pulrouc.mqtt.iothub.aliyuncs.com
+port		=1883
+
+
+[user_passwd]
+username	=mqtt&hh80DrvPW3T
+passwd		=07a106739ed0a9052dc40677ed201202a57f8395e4b96c4b9b37afd8f4d45e52
+
+
+[client_id]
+id			=hh80DrvPW3T.mqtt|securemode=2,signmethod=hmacsha256,timestamp=1657599841531|
+
+
+[sub_topic]
+topic		=/hh80DrvPW3T/mqtt/user/get
+
+
+[pub_topic]
+topic		=/hh80DrvPW3T/mqtt/user/update
+
+[ali_json]
+method		=aliyun:thing.service.property.set
+id			=xz
+identifier	=CurrentTemperature
+version		=1.1.0
+
+
+[KEEP_ALIVE]
+alive		=60
+
+
+[ali_Qos]
+Qos			=0
+
