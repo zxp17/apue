@@ -85,28 +85,19 @@ int main(int argc,char *argv[])
 	struct mosquitto	*mosq;
 	int					opt;
 	char				*program_name;
-	char				*user = NULL;
-	char				*passwd = NULL;
-	char				*topic = NULL;
-	char				*hostname = NULL;
 	int					port;
 	int					daemon_run = 0;
 	char				*ip = NULL;
 	st_mqtt				mqtt;
 	int					rv;
+	const char			*sub;
 
 	memset(&mqtt,0,sizeof(mqtt));
-	rv = gain_mqtt_conf(INI_PATH,&mqtt,SUB);
+	rv = gain_mqtt_conf(INI_PATH,&mqtt);
 
 	struct option long_option[] = 
 	{
-		{"topic",required_argument,NULL,'t'},
-		{"user",required_argument,NULL,'u'},
-		{"passwd",required_argument,NULL,'P'},
-		{"hostname",required_argument,NULL,'n'},
-		{"ip",required_argument,NULL,'i'},
 		{"daemon",no_argument,NULL,'d'},
-		{"port",required_argument,NULL,'p'},
 		{"help",no_argument,NULL,'d'},
 		{0,0,0,0}
 	};
@@ -115,26 +106,8 @@ int main(int argc,char *argv[])
 	{
 		switch(opt)
 		{
-			case 'u':
-				user = optarg;
-				break;
-			case 'P':
-				passwd = optarg;
-				break;
-			case 't':
-				topic = optarg;
-				break;
-			case 'n':
-				hostname = optarg;
-				break;
-			case 'i':
-				ip = optarg;
-				break;
 			case 'd':
 				daemon_run = 1;
-				break;
-			case 'p':
-				port = atoi(optarg);
 				break;
 			case 'h':
 				print_usage(program_name);
@@ -154,6 +127,8 @@ int main(int argc,char *argv[])
 		return -1;
 	}
 	printf("初始化mos库成功\n");
+
+
 	//创建一个订阅端实例
 	//参数：id（不需要则为NULL） clean_start 用户数据
 	mosq = mosquitto_new("mqtt.clientid",true,(void *)&mqtt);
@@ -165,11 +140,14 @@ int main(int argc,char *argv[])
 	}
 	printf("mosquitto new successfully\n");
 
+
+
 	//set callback function
 	mosquitto_connect_callback_set(mosq,my_connect_callback);
 	mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
 	mosquitto_subscribe_callback_set(mosq,my_subscribe_callback);
 	mosquitto_message_callback_set(mosq,my_message_callback);
+
 
 	//set username and passwd
 	if(mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd) != MOSQ_ERR_SUCCESS)
@@ -179,6 +157,7 @@ int main(int argc,char *argv[])
 	}
 
 	//connect broke
+	printf("mqtt.hostname: %s\nmqtt.port: %d\n",mqtt.hostname,mqtt.port);
 	ret = mosquitto_connect(mosq,mqtt.hostname,mqtt.port,KEEP_ALIVE);
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
@@ -189,13 +168,15 @@ int main(int argc,char *argv[])
 	}
 	printf("connect broke successfully\n");
 
+
 	//开始通信，循坏执行，知道运行标志running被改变
 	printf("start communicate~~~~~~~~~~\n");
 
 	while(running)
 	{
-		mosquitto_loop(mosq,-1,1);
+		mosquitto_subscribe(mosq,NULL,sub,mqtt.Qos);
 		printf("\n\n");
+		sleep(3);
 	}
 
 	//结束后的清理工作

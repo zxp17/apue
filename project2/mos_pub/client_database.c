@@ -72,7 +72,7 @@ int open_database(const char *filename,sqlite3 **db)
 }
 int save_database(sqlite3 *db,char *buf)
 {
-		char				*info[3] = {0};
+		char				*info[10] = {0};
 		char				delims[2] = "\n";
 		char				sql1[1024];
 		int					rc;
@@ -90,7 +90,7 @@ int save_database(sqlite3 *db,char *buf)
 			result = strtok(NULL,delims);
 		}
 															
-		snprintf(sql1,sizeof(sql1),"INSERT INTO %s(SERIAL,TIME,TEMPERATURE)VALUES('%s','%s','%s');","client_temper_database",info[0],info[1],info[2]);
+		snprintf(sql1,sizeof(sql1),"INSERT INTO %s(SERIAL,TIME,TEMPERATURE)VALUES('%s','%s','%s');","client_temper_database",info[0],info[1],info[2],info[3],info[4],info[5],info[6],info[7],info[8],info[9]);
 															
 		rc = sqlite3_exec(db,sql1,0,0,&zErrMsg);
 															

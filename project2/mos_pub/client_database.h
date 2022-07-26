@@ -11,31 +11,34 @@
  *                 
  ********************************************************************************/
 #ifndef	_CLIENT_DATABASE_H_
-#define _CREATE_DATABASE_H_
+#define _CLIENT_DATABASE_H_
 
 /* 
  *function:open the database and create a table
  * */
-int open_database(const char *filename,sqlite3 **db);
+extern int open_database(const char *filename,sqlite3 **db);
+
 
 /*
  * function:save the data to the database
  *  */
-int save_database(sqlite3 *db,char *buf);
+extern int save_database(sqlite3 *db,char *buf);
+
 
 /* 
  *function:check for data in the database
  * */
-int select_database(sqlite3 *db,char *s_data,int size);
+extern int select_database(sqlite3 *db,char *s_data,int size);
+
 
 /* 
- *
+ *function:delete data from database
  * */
-int delete_database(sqlite3 *db);
+extern int delete_database(sqlite3 *db);
 
 /* 
  *close the database
  * */
-int close_database(sqlite3 *db);
+extern int close_database(sqlite3 *db);
 
 #endif

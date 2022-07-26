@@ -26,10 +26,11 @@
 #include <signal.h>
 #include <time.h>
 #include <errno.h>
+#include <sqlite3.h>
 #include "mos_pub.h"
-#include "gettime.c"
-#include "gettemper.c"
-#include "client_database.c"
+#include "gettime.h"
+#include "gettemper.h"
+#include "client_database.h"
 #include "mosq_conf.h"
 #include "cJSON.h"
 #include "dictionary.h"
@@ -43,8 +44,6 @@
 #define		MSG_MAX_SIZE	512
 
 
-
-//定义运行标志决定是否需要结束
 static int running = 1;
 static int g_sig_out = 0;
 
@@ -84,7 +83,6 @@ int main(int argc,char *argv[])
 
 	//init mqtt
 	memset(&mqtt,0,sizeof(mqtt));
-	rv = gain_mqtt_conf(INI_PATH,&mqtt,TENCENT);
 
 	program_name = basename(argv[0]);
 
@@ -98,7 +96,7 @@ int main(int argc,char *argv[])
 		{0,0,0,0}
 	};
 
-	while((opt = getopt_long(argc,argv,"dhaht",long_options,NULL)) != -1)
+	while((opt = getopt_long(argc,argv,"dhawt",long_options,NULL)) != -1)
 	{
 		switch(opt)
 		{
@@ -121,6 +119,35 @@ int main(int argc,char *argv[])
 				break;
 		}
 	}
+	if(ali)
+	{
+		rv = gain_mqtt_conf(INI_PATH,&mqtt,ALI);
+		if(rv != 0)
+		{
+			printf("ali get conf failed\n");
+			return -1;
+		}
+	}
+	if(huawei)
+	{
+		rv = gain_mqtt_conf(INI_PATH,&mqtt,HUAWEI);
+		if(rv != 0)
+		{
+			printf("huawei get conf failed\n");
+			return -1;
+		}
+	}
+	if(tencent)
+	{
+		rv = gain_mqtt_conf(INI_PATH,&mqtt,TENCENT);
+		if(rv != 0)
+		{
+			printf("tencen get conf failed\n");
+			return -1;
+		}
+	}
+
+
 	//init mosquitto lib
 	ret = mosquitto_lib_init();
 	if(ret != MOSQ_ERR_SUCCESS)
@@ -129,6 +156,8 @@ int main(int argc,char *argv[])
 		return -1;
 	}
 	printf("init mosquitto lib successfully\n");
+
+
 
 	//mosquitto_new
 	mosq = mosquitto_new(mqtt.clientid,true,(void *)&mqtt);
@@ -139,10 +168,13 @@ int main(int argc,char *argv[])
 	}
 	printf("create a client successfully\n");
 
+
 	//set callback function
 	mosquitto_connect_callback_set(mosq,my_connect_callback);
-	mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
+	//mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
 	mosquitto_publish_callback_set(mosq,my_publish_callback);
+
+	printf("mqtt.uername: %s,mqtt.passwd: %s",mqtt.username,mqtt.passwd);
 
 	if(mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd) != MOSQ_ERR_SUCCESS)
 	{
@@ -150,6 +182,7 @@ int main(int argc,char *argv[])
 		goto cleanup;
 	}
 	printf("mosquitto_username_pw_set successfully\n");
+
 
 	
 	printf("mosq: %s\nhostname: %s\nport: %d\nKEEP_ALIVE: %d\n",mosq,mqtt.hostname,mqtt.port,KEEP_ALIVE);
@@ -164,11 +197,18 @@ int main(int argc,char *argv[])
 	printf("connect broke successfully\n");
 
 
+	if(daemon_run)
+	{
+		daemon(1,1);
+	}
+
+
 	while(!g_sig_out)
 	{
-		//发送格式为cJSON的上报数据
+		//data is reported in json format
 		pub_json_data(mosq,&mqtt);
 	}
+
 cleanup:	
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
@@ -177,11 +217,16 @@ cleanup:
 	return 0;
 
 }
+
 void print_usage(const char *program_name)
 {
-	printf("the program name is %S\n",program_name);
+	printf("the program name is %s\n",program_name);
 	printf("	-d	--daemon	the client program running in background\n");
 	printf("	-h	--help		more detail\n");
+	printf("	-a	--ali is connection to ali cloud platform\n");
+	printf("	-w	--huawei is connection to huawei cloud platform\n");
+	printf("	-t 	--tencent is connection to tencent cloud platform\n");
+
 }
 
 void sig_out(int signum)
@@ -197,8 +242,12 @@ void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
 {
 	char		buf[512];
 	float		tem = 0;
-	char		tim[32];
-	char		*msg;
+	char		tim[25];
+	char		*msg = NULL;
+	char		s_data[128];
+	sqlite3		*db = NULL;
+	int			sample_flag = 0;
+
 
 	cJSON	*root = cJSON_CreateObject();
 	cJSON	*item = cJSON_CreateObject();
@@ -206,22 +255,13 @@ void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
 	memset(root,0,sizeof(root));
 	memset(item,0,sizeof(item));
 
-/*	if(getTime(tim) < 0)
-	{
-		printf("get time failure: %s\n",strerror(errno));
-		return ;
-	}
-	if(getTemper(tem) < 0)
-	{
-		printf("get temperature failure: %s\n",strerror(errno));
-		return ;
-	}
-*/
+	
 	getTime(tim);
 	getTemper(&tem);
 
-	snprintf(buf,sizeof(buf),"%s/%f",tim,tem);
 
+//	snprintf(buf,sizeof(buf),"%s/%f",tim,tem);
+	
 	cJSON_AddItemToObject(root,"method",cJSON_CreateString(mqt->method));
 	cJSON_AddItemToObject(root,"id",cJSON_CreateString(mqt->jsonid));
 	cJSON_AddItemToObject(root,"params",item);
@@ -229,13 +269,41 @@ void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
 	cJSON_AddItemToObject(item,"CurrentTemperature",cJSON_CreateNumber(tem));
 	cJSON_AddItemToObject(root,"version",cJSON_CreateString(mqt->version));
 
+	
 	msg = cJSON_Print(root);
 	printf("msg: %s\n",msg);
 
 	if(mosquitto_publish(mosq,NULL,mqt->topic,strlen(msg)+1,msg,mqt->Qos,NULL) != MOSQ_ERR_SUCCESS)
 	{
+
+		//publish failure save data in database
 		printf("mosquitto publish failure: %s\n",strerror(errno));
-		return ;
+		if(save_database(db,msg) < 0)
+		{
+			printf("save data failure\n");
+			sample_flag = 1;
+		}
+		if(sample_flag > 0)
+		{
+			if(select_database(db,s_data,sizeof(s_data)) > 0)		//database with data
+			{
+				if(mosquitto_publish(mosq,NULL,mqt->topic,strlen(s_data)+1,s_data,mqt->Qos,NULL) != MOSQ_ERR_SUCCESS)
+				{
+					printf("publish data in database failure\n");
+				}
+				else
+				{
+					printf("publish data in database sucsessfully\n");
+					if(delete_database(db) < 0)
+					{
+						printf("delete data in database failure");
+					}
+				}
+			}
+			else
+			{
+				printf("database is empty\n");
+			}
+		}
 	}
-	printf("mosquitto_publish successfully\n");
 }

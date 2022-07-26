@@ -21,9 +21,20 @@ struct trans_info
 	char			time[20];
 	char			temperature[20];
 };
-
+/* 
+ *function:print prompt information
+ * */
 void print_usage(const char *program_name);
+
+/* 
+ *function:catch program exit signal
+ * */
 void sig_out(int signum);
-int pack_info(struct trans_info *info,char *msg,int size);
+
+/* 
+ *function:the information is reported in JSON format
+ * */
 void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt);
+
+
 #endif

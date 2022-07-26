@@ -58,32 +58,35 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 		strncpy(mqtt->passwd,iniparser_getstring(ini,"ali:passwd","NULL"),BUF_SIZE);
 		strncpy(mqtt->clientid,iniparser_getstring(ini,"ali:id","NULL"),BUF_SIZE);
 		strncpy(mqtt->topic,iniparser_getstring(ini,"ali:topic","NULL"),BUF_SIZE);
-		strncpy(mqtt->method,iniparser_getstring(ini,"json:method","NULL"),BUF_SIZE);
 		strncpy(mqtt->identifier,iniparser_getstring(ini,"json:identifier","NULL"),BUF_SIZE);
+
+		strncpy(mqtt->method,iniparser_getstring(ini,"json:method","NULL"),BUF_SIZE);
 		strncpy(mqtt->jsonid,iniparser_getstring(ini,"json:id","NULL"),BUF_SIZE);
 		strncpy(mqtt->version,iniparser_getstring(ini,"json:version","NULL"),BUF_SIZE);
 	}
-	else if(TENCENT == type)
+	if(TENCENT == type)
 	{
-		printf("HUAWEi\n");
-
-		mqtt->port = iniparser_getint(ini,"mqtt_server_addr:port",-1);
-		strncpy(mqtt->hostname,iniparser_getstring(ini,"mqtt_server_addr:host","NULL"),BUF_SIZE);
-		strncpy(mqtt->username,iniparser_getstring(ini,"user_passwd:username","NULL"),BUF_SIZE);
-		strncpy(mqtt->passwd,iniparser_getstring(ini,"user_passwd:passwd","NULL"),BUF_SIZE);
-		strncpy(mqtt->clientid,iniparser_getstring(ini,"client_id:id","NULL"),BUF_SIZE);
-		strncpy(mqtt->topic,iniparser_getstring(ini,"pub_topic:topic","NULL"),BUF_SIZE);
+		printf("TENCENT\n");
 
 		mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
-		strncpy(mqtt->method,iniparser_getstring(ini,"json:method","NULL"),BUF_SIZE);
+		mqtt->port = iniparser_getint(ini,"tencent:port",-1);
+
+		strncpy(mqtt->hostname,iniparser_getstring(ini,"tencent:host","NULL"),BUF_SIZE);
+		strncpy(mqtt->username,iniparser_getstring(ini,"tencent:username","NULL"),BUF_SIZE);
+		strncpy(mqtt->passwd,iniparser_getstring(ini,"tencent:passwd","NULL"),BUF_SIZE);
+		strncpy(mqtt->clientid,iniparser_getstring(ini,"tencent:id","NULL"),BUF_SIZE);
+		strncpy(mqtt->topic,iniparser_getstring(ini,"tencent:topic","NULL"),BUF_SIZE);
 		strncpy(mqtt->identifier,iniparser_getstring(ini,"json:identifier","NULL"),BUF_SIZE);
+
+		strncpy(mqtt->method,iniparser_getstring(ini,"json:method","NULL"),BUF_SIZE);
 		strncpy(mqtt->jsonid,iniparser_getstring(ini,"json:id","NULL"),BUF_SIZE);
 		strncpy(mqtt->version,iniparser_getstring(ini,"json:version","NULL"),BUF_SIZE);
+		
 
 	}
-	else if(HUAWEI == type)
+	if(HUAWEI == type)
 	{
-		printf("Tencent\n");
+		printf("HUAWEI\n");
 	}
 
 	iniparser_freedict(ini);

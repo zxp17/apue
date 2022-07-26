@@ -15,7 +15,7 @@
 #define MQTT_CONF_H
 
 #define BUF_SIZE 512
-
+/*  
 #define DEFAULT_CLIENTID		"hh80DrvPW3T.mqtt|securemode=2,signmethod=hmacsha256,timestamp=1657599841531|"
 #define DEFAULT_USERNAME		"mqtt&hh80DrvPW3T"
 #define DEFAULT_PASSWD			"07a106739ed0a9052dc40677ed201202a57f8395e4b96c4b9b37afd8f4d45e52"
@@ -28,10 +28,10 @@
 
 #define DEFAULT_QOS				0
 #define DEFAULT_METHOD			"aliyun:thing.service.property.set"
-#define DEFAULT_JSONID			"xz"					//不知道，暂时乱写的
+#define DEFAULT_JSONID			"xz"					
 #define DEFAULT_IDENTIFIER		"CurrentTemperature"
 #define DEFAULT_VERSION			"1.0.0.0"
-
+*/
 #define KEEP_ALIVE				60
 
 enum{
@@ -55,6 +55,6 @@ typedef struct data_st_mqtt{
 	char	version[BUF_SIZE];
 }st_mqtt;
 
-int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type);
+int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt);
 
 #endif

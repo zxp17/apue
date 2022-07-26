@@ -16,7 +16,7 @@
 #include "iniparser.h"
 #include "mosq_conf.h"
 
-int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
+int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt)
 {
 	dictionary		*ini=NULL;
 	const char		*hostname;
@@ -46,41 +46,21 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 	}
 
 	//先默认配置文件内的参数
-	hostname	=iniparser_getstring(ini,"mqtt_server_addr:host",DEFAULT_HOSTNAME);
-	port		=iniparser_getint(ini,"mqtt_server_addr:port",DEFAULT_PORT);
-	username	=iniparser_getstring(ini,"user_passwd:username",DEFAULT_USERNAME);
-	passwd		=iniparser_getstring(ini,"user_passwd:passwd",DEFAULT_PASSWD);
-	clientid	=iniparser_getstring(ini,"client_id:id",DEFAULT_CLIENTID);
-	identifier	=iniparser_getstring(ini,"ali_json:identifier",DEFAULT_IDENTIFIER);
-	Qos			=iniparser_getint(ini,"ali_Qos:Qos",DEFAULT_QOS);
+	mqtt->port = iniparser_getint(ini,"ali:port",-1);
+	mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
 
-	if(type == SUB)
-	{
-		topic = iniparser_getstring(ini,"sub_topic: topic",DEFAULT_SUBTOPIC);
-	}
-	else if(type == PUB)
-	{
-		topic = iniparser_getstring(ini,"pub_topic:topic",DEFAULT_PUBTOPIC);
-		method = iniparser_getstring(ini,"json:method",DEFAULT_METHOD);
-		jsonid = iniparser_getstring(ini,"json:id",DEFAULT_JSONID);
-		version = iniparser_getstring(ini,"json:version",DEFAULT_VERSION);
-	}
+	strncpy(mqtt->hostname,iniparser_getstring(ini,"ali:host","NULL"),BUF_SIZE);
+	strncpy(mqtt->username,iniparser_getstring(ini,"ali:username","NULL"),BUF_SIZE);
+	strncpy(mqtt->passwd,iniparser_getstring(ini,"ali:passwd","NULL"),BUF_SIZE);
+	strncpy(mqtt->clientid,iniparser_getstring(ini,"ali:id","NULL"),BUF_SIZE);
+	strncpy(mqtt->topic,iniparser_getstring(ini,"ali:topic","NULL"),BUF_SIZE);
 
-	mqtt->Qos = Qos;
-	strncpy(mqtt->hostname,hostname,BUF_SIZE);
-	mqtt->port = port;
-	strncpy(mqtt->username,username,BUF_SIZE);
-	strncpy(mqtt->passwd,passwd,BUF_SIZE);
-	strncpy(mqtt->clientid,clientid,BUF_SIZE);
-	strncpy(mqtt->topic,topic,BUF_SIZE);
+	strncpy(mqtt->method,iniparser_getstring(ini,"json:method","NULL"),BUF_SIZE);
+	strncpy(mqtt->jsonid,iniparser_getstring(ini,"json:id","NULL"),BUF_SIZE);
+	strncpy(mqtt->identifier,iniparser_getstring(ini,"json:identifier","NULL"),BUF_SIZE);
+	strncpy(mqtt->version,iniparser_getstring(ini,"json:version","NULL"),BUF_SIZE);
 
-	if(type == PUB)
-	{
-		strncpy(mqtt->method,method,BUF_SIZE);
-		strncpy(mqtt->identifier,identifier,BUF_SIZE);
-		strncpy(mqtt->jsonid,jsonid,BUF_SIZE);
-		strncpy(mqtt->version,version,BUF_SIZE);
-	}
+
 	iniparser_freedict(ini);
 
 	return 0;
