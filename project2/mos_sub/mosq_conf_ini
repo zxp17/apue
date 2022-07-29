@@ -1,10 +1,10 @@
 [ali]
 host		=iot-06z00cu7pulrouc.mqtt.iothub.aliyuncs.com
 port		=1883
-username	=mqtt&hh80DrvPW3T
-passwd		=07a106739ed0a9052dc40677ed201202a57f8395e4b96c4b9b37afd8f4d45e52
-id			=hh80DrvPW3T.mqtt|securemode=2,signmethod=hmacsha256,timestamp=1657599841531|
-topic		=/hh80DrvPW3T/mqtt/user/get
+username	=led_&hh80M2NC5KC
+passwd		=50d2708db32fad193258ca780c945ddee7403aeef21ff7d9a95b56900fe67eb1
+id			=hh80M2NC5KC.led_|securemode=2,signmethod=hmacsha256,timestamp=1659080789855|
+topic		=/sys/hh80M2NC5KC/led_/thing/service/property/set
 
 
 [json]

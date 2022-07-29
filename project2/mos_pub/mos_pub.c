@@ -155,7 +155,7 @@ int main(int argc,char *argv[])
 		printf("init lib error: %s\n",strerror(errno));
 		return -1;
 	}
-	printf("init mosquitto lib successfully\n");
+	//printf("init mosquitto lib successfully\n");
 
 
 
@@ -166,13 +166,13 @@ int main(int argc,char *argv[])
 		printf("new pub_test error\n");
 		goto cleanup;
 	}
-	printf("create a client successfully\n");
+	//printf("create a client successfully\n");
 
 
 	//set callback function
 	mosquitto_connect_callback_set(mosq,my_connect_callback);
 	//mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
-	mosquitto_publish_callback_set(mosq,my_publish_callback);
+//	mosquitto_publish_callback_set(mosq,my_publish_callback);
 
 	printf("mqtt.uername: %s,mqtt.passwd: %s",mqtt.username,mqtt.passwd);
 
@@ -181,7 +181,7 @@ int main(int argc,char *argv[])
 		printf("mosquitto_username_pw_set failure: %s\n",strerror(errno));
 		goto cleanup;
 	}
-	printf("mosquitto_username_pw_set successfully\n");
+	//printf("mosquitto_username_pw_set successfully\n");
 
 
 	
@@ -194,9 +194,9 @@ int main(int argc,char *argv[])
 		printf("connect broker error: %s\n",strerror(errno));
 		goto cleanup;
 	}
-	printf("connect broke successfully\n");
-
-
+	//printf("connect broke successfully\n");
+	mosquitto_connect_callback_set(mosq,my_connect_callback);
+	
 	if(daemon_run)
 	{
 		daemon(1,1);

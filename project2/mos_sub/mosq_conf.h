@@ -41,7 +41,7 @@ enum{
 
 typedef struct data_st_mqtt{
 
-	char	hostname[BUF_SIZE];
+	char	host[BUF_SIZE];
 	int		port;
 	char	username[BUF_SIZE];
 	char	passwd[BUF_SIZE];

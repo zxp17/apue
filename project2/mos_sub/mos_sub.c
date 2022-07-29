@@ -35,7 +35,7 @@ static int running = 1;
 
 void my_connect_callback(struct mosquitto *mosq,void *obj,int rc)
 {
-	
+
 	printf("callback: connect broke successfully\n");
 	printf("rc: %d\n",rc);
 
@@ -48,11 +48,12 @@ void my_connect_callback(struct mosquitto *mosq,void *obj,int rc)
 	{
 		//订阅主题
 		//参数：句柄：id 订阅的主题：qos
-		if(mosquitto_subscribe(mosq,NULL,"topic1",2))
+		if(mosquitto_subscribe(mosq,NULL,"/sys/hh80M2NC5KC/led_/thing/service/property/set",0))
 		{
 			printf("set the topic error\n");
 			exit(1);
 		}
+		printf("subscribe successfully\n");
 	}
 }
 void my_disconnect_callback(struct mosquitto *mosq,void *obj,int rc)
@@ -66,11 +67,38 @@ void my_subscribe_callback(struct mosquitto *mosq,void *obj,int mid,int qos_coun
 	printf("callback subscribe successfully\n");
 }
 
+char* getStatus(char *msg)
+{
+	char	*status = NULL;
+	printf("msg in getStatus is: %s\n",msg);
+
+	status = strstr(msg,"LEDSwitch");
+	if(!status)
+	{
+		printf("ptr has problem\n");
+	}
+	status += 11;
+	printf("status in getStatus is: %s\n",status);
+
+	return (char*)status;
+
+}
 
 void my_message_callback(struct mosquitto *mosq,void *obj,const struct mosquitto_message *msg)
 {
+	char	*status = NULL;
+	int		led_flag = 0;
 	printf("call the function: on_message\n");
-	printf("recieve a message of %s: %s\n",(char *)msg->topic,(char *)msg->payload);
+	printf("recieve a message of %s\n: %s\n",(char *)msg->topic,(char *)msg->payload);
+	
+	status = getStatus((char *)msg->payload);
+	printf("status in message is: %s\n",status);
+
+	printf("status letter in message is: %c\n",*status);
+
+	led_flag = atoi(status);
+	printf("led_flag in message: %d\n",led_flag);
+
 
 	if(0 == strcmp(msg->payload,"quit"))
 	{
@@ -131,7 +159,7 @@ int main(int argc,char *argv[])
 
 	//创建一个订阅端实例
 	//参数：id（不需要则为NULL） clean_start 用户数据
-	mosq = mosquitto_new("mqtt.clientid",true,(void *)&mqtt);
+	mosq = mosquitto_new(mqtt.clientid,true,(void *)&mqtt);
 	if(NULL == mosq)
 	{
 		printf("new sub_test error\n");
@@ -150,15 +178,15 @@ int main(int argc,char *argv[])
 
 
 	//set username and passwd
-	if(mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd) != MOSQ_ERR_SUCCESS)
+	ret = mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd);
+	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("mosquitto_username_pw_set failure: %s\n",strerror(errno));
 		mosquitto_lib_cleanup();
 	}
 
 	//connect broke
-	printf("mqtt.hostname: %s\nmqtt.port: %d\n",mqtt.hostname,mqtt.port);
-	ret = mosquitto_connect(mosq,mqtt.hostname,mqtt.port,KEEP_ALIVE);
+	ret = mosquitto_connect(mosq,mqtt.host,mqtt.port,KEEP_ALIVE);
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("connect server error: %s\n",strerror(errno));
@@ -166,7 +194,6 @@ int main(int argc,char *argv[])
 		mosquitto_lib_cleanup();
 		return -1;
 	}
-	printf("connect broke successfully\n");
 
 
 	//开始通信，循坏执行，知道运行标志running被改变
@@ -174,7 +201,7 @@ int main(int argc,char *argv[])
 
 	while(running)
 	{
-		mosquitto_subscribe(mosq,NULL,sub,mqtt.Qos);
+		mosquitto_loop(mosq,-1,1);
 		printf("\n\n");
 		sleep(3);
 	}

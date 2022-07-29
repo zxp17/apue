@@ -49,8 +49,8 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt)
 	mqtt->port = iniparser_getint(ini,"ali:port",-1);
 	mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
 
-	strncpy(mqtt->hostname,iniparser_getstring(ini,"ali:host","NULL"),BUF_SIZE);
-	strncpy(mqtt->username,iniparser_getstring(ini,"ali:username","NULL"),BUF_SIZE);
+	strncpy(mqtt->host,iniparser_getstring(ini,"ali:host","NULL"),BUF_SIZE);
+	strcpy(mqtt->username,iniparser_getstring(ini,"ali:username","NULL"));
 	strncpy(mqtt->passwd,iniparser_getstring(ini,"ali:passwd","NULL"),BUF_SIZE);
 	strncpy(mqtt->clientid,iniparser_getstring(ini,"ali:id","NULL"),BUF_SIZE);
 	strncpy(mqtt->topic,iniparser_getstring(ini,"ali:topic","NULL"),BUF_SIZE);
@@ -60,6 +60,8 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt)
 	strncpy(mqtt->identifier,iniparser_getstring(ini,"json:identifier","NULL"),BUF_SIZE);
 	strncpy(mqtt->version,iniparser_getstring(ini,"json:version","NULL"),BUF_SIZE);
 
+
+	printf("mqtt->username in conf: %s\n",mqtt->username);
 
 	iniparser_freedict(ini);
 
