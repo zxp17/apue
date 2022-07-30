@@ -60,9 +60,6 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt)
 	strncpy(mqtt->identifier,iniparser_getstring(ini,"json:identifier","NULL"),BUF_SIZE);
 	strncpy(mqtt->version,iniparser_getstring(ini,"json:version","NULL"),BUF_SIZE);
 
-
-	printf("mqtt->username in conf: %s\n",mqtt->username);
-
 	iniparser_freedict(ini);
 
 	return 0;

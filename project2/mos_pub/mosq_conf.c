@@ -19,7 +19,7 @@
 int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 {
 	dictionary		*ini=NULL;
-	const char		*hostname;
+	const char		*host;
 	const char		*username;
 	int				port;
 	const char		*passwd;
@@ -53,7 +53,7 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 		mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
 		mqtt->port =iniparser_getint(ini,"ali:port",-1);
 
-		strncpy(mqtt->hostname,iniparser_getstring(ini,"ali:host","NULL"),BUF_SIZE);
+		strncpy(mqtt->host,iniparser_getstring(ini,"ali:host","NULL"),BUF_SIZE);
 		strncpy(mqtt->username,iniparser_getstring(ini,"ali:username","NULL"),BUF_SIZE);
 		strncpy(mqtt->passwd,iniparser_getstring(ini,"ali:passwd","NULL"),BUF_SIZE);
 		strncpy(mqtt->clientid,iniparser_getstring(ini,"ali:id","NULL"),BUF_SIZE);
@@ -71,7 +71,7 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 		mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
 		mqtt->port = iniparser_getint(ini,"tencent:port",-1);
 
-		strncpy(mqtt->hostname,iniparser_getstring(ini,"tencent:host","NULL"),BUF_SIZE);
+		strncpy(mqtt->host,iniparser_getstring(ini,"tencent:host","NULL"),BUF_SIZE);
 		strncpy(mqtt->username,iniparser_getstring(ini,"tencent:username","NULL"),BUF_SIZE);
 		strncpy(mqtt->passwd,iniparser_getstring(ini,"tencent:passwd","NULL"),BUF_SIZE);
 		strncpy(mqtt->clientid,iniparser_getstring(ini,"tencent:id","NULL"),BUF_SIZE);

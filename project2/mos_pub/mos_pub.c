@@ -52,7 +52,6 @@ void my_connect_callback(struct mosquitto *mosq,void *obj,int rc)
 	printf("callback: connect successfully\n");
 }
 
-//rc :a value of 0 means the client has called mosquitto_disconnect.any other value indicates that the disconnect is unexpected
 void my_disconnect_callback(struct mosquitto *mosq,void *obj,int rc)
 {
 	printf("callback: disconnected!!\n");
@@ -155,7 +154,7 @@ int main(int argc,char *argv[])
 		printf("init lib error: %s\n",strerror(errno));
 		return -1;
 	}
-	//printf("init mosquitto lib successfully\n");
+	printf("init mosquitto lib successfully\n");
 
 
 
@@ -166,35 +165,36 @@ int main(int argc,char *argv[])
 		printf("new pub_test error\n");
 		goto cleanup;
 	}
-	//printf("create a client successfully\n");
+	printf("create a client successfully\n");
 
 
 	//set callback function
 	mosquitto_connect_callback_set(mosq,my_connect_callback);
-	//mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
-//	mosquitto_publish_callback_set(mosq,my_publish_callback);
+	mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
+	mosquitto_publish_callback_set(mosq,my_publish_callback);
 
-	printf("mqtt.uername: %s,mqtt.passwd: %s",mqtt.username,mqtt.passwd);
 
 	if(mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd) != MOSQ_ERR_SUCCESS)
 	{
 		printf("mosquitto_username_pw_set failure: %s\n",strerror(errno));
 		goto cleanup;
 	}
-	//printf("mosquitto_username_pw_set successfully\n");
+	printf("mosquitto_username_pw_set successfully\n");
 
 
 	
-	printf("mosq: %s\nhostname: %s\nport: %d\nKEEP_ALIVE: %d\n",mosq,mqtt.hostname,mqtt.port,KEEP_ALIVE);
+	printf("mosq: %s\nhost: %s\nport: %d\nKEEP_ALIVE: %d\n",mosq,mqtt.host,mqtt.port,KEEP_ALIVE);
 
 	//connect broke
-	ret = mosquitto_connect(mosq,mqtt.hostname,mqtt.port,KEEP_ALIVE);
+	ret = mosquitto_connect(mosq,mqtt.host,mqtt.port,KEEP_ALIVE);
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("connect broker error: %s\n",strerror(errno));
 		goto cleanup;
 	}
-	//printf("connect broke successfully\n");
+	printf("connect broke successfully\n");
+	
+
 	mosquitto_connect_callback_set(mosq,my_connect_callback);
 	
 	if(daemon_run)
@@ -207,6 +207,7 @@ int main(int argc,char *argv[])
 	{
 		//data is reported in json format
 		pub_json_data(mosq,&mqtt);
+		sleep(5);
 	}
 
 cleanup:	
@@ -215,7 +216,6 @@ cleanup:
 	printf("end\n");
 
 	return 0;
-
 }
 
 void print_usage(const char *program_name)
@@ -240,7 +240,7 @@ void sig_out(int signum)
 
 void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
 {
-	char		buf[512];
+//	char		buf[512];
 	float		tem = 0;
 	char		tim[25];
 	char		*msg = NULL;

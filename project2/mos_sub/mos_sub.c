@@ -22,6 +22,8 @@
 #include "cJSON.h"
 #include "dictionary.h"
 #include "mosq_conf.h"
+#include "mos_sub.h"
+#include "libgpiod-led.h"
 
 #define		INI_PATH		"./mosq_conf_ini"
 
@@ -30,24 +32,20 @@
 #define		KEEP_ALIVE		60
 #define		MSG_MAX_SIZE	512
 
-//定义运行标志决定是否需要结束
 static int running = 1;
 
 void my_connect_callback(struct mosquitto *mosq,void *obj,int rc)
 {
 
 	printf("callback: connect broke successfully\n");
-	printf("rc: %d\n",rc);
-
 	if(rc)
 	{
-		//连接错误，退出程序
+		//connect error
 		printf("connect broke error: %s\n",strerror(errno));
 	}
 	else
 	{
-		//订阅主题
-		//参数：句柄：id 订阅的主题：qos
+		//connect successfully,subscribe topic
 		if(mosquitto_subscribe(mosq,NULL,"/sys/hh80M2NC5KC/led_/thing/service/property/set",0))
 		{
 			printf("set the topic error\n");
@@ -67,23 +65,6 @@ void my_subscribe_callback(struct mosquitto *mosq,void *obj,int mid,int qos_coun
 	printf("callback subscribe successfully\n");
 }
 
-char* getStatus(char *msg)
-{
-	char	*status = NULL;
-	printf("msg in getStatus is: %s\n",msg);
-
-	status = strstr(msg,"LEDSwitch");
-	if(!status)
-	{
-		printf("ptr has problem\n");
-	}
-	status += 11;
-	printf("status in getStatus is: %s\n",status);
-
-	return (char*)status;
-
-}
-
 void my_message_callback(struct mosquitto *mosq,void *obj,const struct mosquitto_message *msg)
 {
 	char	*status = NULL;
@@ -92,18 +73,20 @@ void my_message_callback(struct mosquitto *mosq,void *obj,const struct mosquitto
 	printf("recieve a message of %s\n: %s\n",(char *)msg->topic,(char *)msg->payload);
 	
 	status = getStatus((char *)msg->payload);
-	printf("status in message is: %s\n",status);
-
-	printf("status letter in message is: %c\n",*status);
 
 	led_flag = atoi(status);
 	printf("led_flag in message: %d\n",led_flag);
 
-
+	if(controlLED(led_flag) != 0)
+	{
+		printf("control error\n");
+	}
+/*
 	if(0 == strcmp(msg->payload,"quit"))
 	{
 		mosquitto_disconnect(mosq);
 	}
+*/	
 }
 
 
@@ -130,7 +113,7 @@ int main(int argc,char *argv[])
 		{0,0,0,0}
 	};
 
-	while((opt = getopt_long(argc,argv,"u:P:t:n:i:dp:h",long_option,NULL)) != -1)
+	while((opt = getopt_long(argc,argv,"dh",long_option,NULL)) != -1)
 	{
 		switch(opt)
 		{
@@ -147,27 +130,25 @@ int main(int argc,char *argv[])
 
 
 	program_name = basename(argv[0]);
-	//初始化mosquitto库
+
+	//init mosquitto
 	ret = mosquitto_lib_init();
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("init lib error\n");
 		return -1;
 	}
-	printf("初始化mos库成功\n");
+	printf("init mosquitto successfully\n");
 
 
-	//创建一个订阅端实例
-	//参数：id（不需要则为NULL） clean_start 用户数据
+	//create a mosq
 	mosq = mosquitto_new(mqtt.clientid,true,(void *)&mqtt);
 	if(NULL == mosq)
 	{
 		printf("new sub_test error\n");
-		mosquitto_lib_cleanup();
-		return -1;
+		goto cleanup;
 	}
 	printf("mosquitto new successfully\n");
-
 
 
 	//set callback function
@@ -182,7 +163,7 @@ int main(int argc,char *argv[])
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("mosquitto_username_pw_set failure: %s\n",strerror(errno));
-		mosquitto_lib_cleanup();
+		goto cleanup;
 	}
 
 	//connect broke
@@ -190,23 +171,17 @@ int main(int argc,char *argv[])
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
 		printf("connect server error: %s\n",strerror(errno));
-		mosquitto_destroy(mosq);
-		mosquitto_lib_cleanup();
-		return -1;
+		goto cleanup;
 	}
 
-
-	//开始通信，循坏执行，知道运行标志running被改变
 	printf("start communicate~~~~~~~~~~\n");
-
 	while(running)
 	{
 		mosquitto_loop(mosq,-1,1);
 		printf("\n\n");
 		sleep(3);
 	}
-
-	//结束后的清理工作
+cleanup:
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
 	printf("end\n");
@@ -226,4 +201,19 @@ void print_usage(const char *program_name)
 	printf("	-u	--username	the username of server\n");
 	printf("	-P	--password	the password of the server\n");
 	printf("	-h	--help		more detail\n");
+}
+char* getStatus(char *msg)
+{
+	char	*status = NULL;
+	//printf("msg in getStatus is: %s\n",msg);
+	
+	status = strstr(msg,"LEDSwitch");
+	if(!status)
+	{
+		printf("ptr has problem\n");
+	}
+	status += 11;
+	//printf("statuus in getStatus is: %s\n",status);
+	
+	return (char*)status;
 }

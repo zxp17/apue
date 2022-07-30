@@ -49,12 +49,7 @@
 	}	
 
 	ptr += 2;
-	//temperature = atof(ptr);
 	*s = atof(ptr)/1000;
-
-	//printf("temperature: %f\n",temperature);
-
-	//gcvt((temperature/1000),sig,s);
 
 	close(fd);
 

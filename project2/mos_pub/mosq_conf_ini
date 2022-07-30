@@ -6,7 +6,6 @@ username	=mqtt&hh80DrvPW3T
 passwd		=07a106739ed0a9052dc40677ed201202a57f8395e4b96c4b9b37afd8f4d45e52
 id			=hh80DrvPW3T.mqtt|securemode=2,signmethod=hmacsha256,timestamp=1657599841531|
 topic		=/sys/hh80DrvPW3T/mqtt/thing/event/property/post
-;topic		=/hh80DrvPW3T/${deviceName}/user/get
 
 [json]
 identifier	=CurrentTemperature

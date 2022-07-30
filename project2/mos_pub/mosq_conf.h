@@ -44,7 +44,7 @@ enum{
 
 typedef struct data_st_mqtt{
 
-	char	hostname[BUF_SIZE];
+	char	host[BUF_SIZE];
 	int		port;
 	char	username[BUF_SIZE];
 	char	passwd[BUF_SIZE];
@@ -59,13 +59,13 @@ typedef struct data_st_mqtt{
 }st_mqtt;
 
 
-/*函数功能：获取配置文件中登录所需的信息
+/*function	：get configuration information to login in 
  *
- *参数：ini_path:读取配置文件的枯井
- *	  ：mqtt 类型为结构体sq_mqtt，存储用户名、端口号等数据
- *	  ：type为连接的不同平台（因为不同平台的连接信息不一样）
+ *parameter	：ini_path,configuration file path
+ *	 	    ：mqtt ,this structure stores the login information
+ *	 	    ：type ,connecting platform type
  *
- *返回值：返回0表示正确执行，返回-1表示失败
+ *return	：0:successfully;	1:error
  *
  * */
 extern int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type);

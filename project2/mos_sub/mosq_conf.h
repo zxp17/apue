@@ -31,13 +31,9 @@
 #define DEFAULT_JSONID			"xz"					
 #define DEFAULT_IDENTIFIER		"CurrentTemperature"
 #define DEFAULT_VERSION			"1.0.0.0"
-*/
 #define KEEP_ALIVE				60
+*/
 
-enum{
-	SUB,
-	PUB
-};
 
 typedef struct data_st_mqtt{
 
@@ -54,7 +50,9 @@ typedef struct data_st_mqtt{
 	char	identifier[BUF_SIZE];
 	char	version[BUF_SIZE];
 }st_mqtt;
-
+/*
+ *function:obtain configuration file information
+ * */
 int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt);
 
 #endif

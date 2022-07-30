@@ -15,12 +15,6 @@
 
 #include "mosq_conf.h"
 
-struct trans_info
-{
-	char			sno[20];
-	char			time[20];
-	char			temperature[20];
-};
 /* 
  *function:print prompt information
  * */
