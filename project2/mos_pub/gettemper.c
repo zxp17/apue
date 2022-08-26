@@ -26,7 +26,8 @@
  * */
  void getTemper(float  *s)
 {
-	int			fd = -1;
+
+/* 	int			fd = -1;
 	char		buf[128];
 	char		*ptr = NULL;
 	int			sig = 25;
@@ -52,7 +53,8 @@
 	*s = atof(ptr)/1000;
 
 	close(fd);
-
+*/
+	*s = 25.00;
 #ifdef DEBUG	
 	printf("获取温度函数执行完毕\n");
 #endif

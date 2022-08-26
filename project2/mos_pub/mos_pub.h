@@ -28,7 +28,13 @@ void sig_out(int signum);
 /* 
  *function:the information is reported in JSON format
  * */
-void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt);
+int json_data(struct mosquitto *mosq,st_mqtt *mqt,char *payload);
+
+
+/* 
+ *function:get the led light status based on the subscription information
+ * */
+extern char *getStatus(char *msg);
 
 
 #endif

@@ -27,6 +27,7 @@
 #include <time.h>
 #include <errno.h>
 #include <sqlite3.h>
+
 #include "mos_pub.h"
 #include "gettime.h"
 #include "gettemper.h"
@@ -35,30 +36,73 @@
 #include "cJSON.h"
 #include "dictionary.h"
 #include "iniparser.h"
+#include "libgpiod-led.h"
+#include "pcf8591_smoke.h"
 
-#define		INI_PATH		"./mosq_conf_ini"
+#define		INI_PATH		"./mosq_conf.ini"
 
-#define		HOST			"localhost"
-#define		PORT			1883
 #define		KEEP_ALIVE		60
 #define		MSG_MAX_SIZE	512
-
+#define		CONNECT			1
+#define		DISCONNECT		0
 
 static int running = 1;
 static int g_sig_out = 0;
+static int connect_flag = 1;
+static int disconnect_flag = 0;
 
-void my_connect_callback(struct mosquitto *mosq,void *obj,int rc)
+void connect_callback(struct mosquitto *mosq,void *obj,int rc)
 {
-	printf("callback: connect successfully\n");
+	st_mqtt				*mqtt = obj;
+
+	mqtt->status	= connect_flag;
+	if(rc)
+	{
+		//connect error
+		printf("connect broke error: %s\n",strerror(errno));
+	}
+	else
+	{
+		if(mosquitto_subscribe(mosq,NULL,"/sys/hh80SkkdSUQ/mos_pub/thing/service/property/set",0))
+		{
+			printf("set the subscribe topic failure\n");
+			exit(1);
+		}
+		printf("subscribe successfully\n");
+	}
 }
 
-void my_disconnect_callback(struct mosquitto *mosq,void *obj,int rc)
+void disconnect_callback(struct mosquitto *mosq,void *obj,int rc)
 {
+	st_mqtt				*mqtt = obj;
+
+	mqtt->status = disconnect_flag;
 	printf("callback: disconnected!!\n");
 	running = 0;
 }
+void subscribe_callback(struct mosquitto *mosq,void *obj,int mid,int qos_count,const int *granted_qos)
+{
+	printf("callback from subscribe\n");
+}
+void message_callback(struct mosquitto *mosq,void *obj,const struct mosquitto_message *msg)
+{
+	char		*status = NULL;
+	int			led_flag = 0;
+	printf("call the function: on message\n");
+	printf("recieve a message of %s\n: %s\n",(char *)msg->topic,(char *)msg->payload);
 
-void my_publish_callback(struct mosquitto *mosq,void *obj,int mid)
+	status = getStatus((char *)msg->payload);
+
+	led_flag = atoi(status);
+	printf("led_flag in message: %d\n",led_flag);
+
+	if(controlLED(led_flag) != 0)
+	{
+		printf("control error\n");
+	}
+}
+
+void publish_callback(struct mosquitto *mosq,void *obj,int mid)
 {
 	printf("callback: publish called!!\n");
 }
@@ -68,17 +112,18 @@ int main(int argc,char *argv[])
 {
 	int					ret;
 	struct mosquitto	*mosq;
-	int					retain = 0;
 	int					opt = -1;
 	int					daemon_run = 0;
 	char				*program_name;
-	char				*test_message = NULL;
-	char				msg[128];
+	sqlite3				*db;
+	char				msg[512]; 
 	st_mqtt				mqtt;
 	int					rv;
-	int					ali = 0;
-	int					huawei = 0;
-	int					tencent = 0;
+	int					platform = 0;
+	int					interval_time;
+	int					last = 0,now;
+	char				*s_data = NULL;
+	int					sample_flag = 0;
 
 	//init mqtt
 	memset(&mqtt,0,sizeof(mqtt));
@@ -95,7 +140,7 @@ int main(int argc,char *argv[])
 		{0,0,0,0}
 	};
 
-	while((opt = getopt_long(argc,argv,"dhawt",long_options,NULL)) != -1)
+	while((opt = getopt_long(argc,argv,"dhawti:",long_options,NULL)) != -1)
 	{
 		switch(opt)
 		{
@@ -106,46 +151,33 @@ int main(int argc,char *argv[])
 				print_usage(program_name);
 				break;
 			case 'a':
-				ali = 1;
+				platform = ALI;
 				break;
 			case 'w':
-				huawei = 1;
+				platform = HUAWEI;
 				break;
 			case 't':
-				tencent = 1;
+				platform = TENCENT;
 				break;
+			case 'i':
+				interval_time = atoi(optarg);
 			default:
 				break;
 		}
 	}
-	if(ali)
+
+	rv = gain_mqtt_conf(INI_PATH,&mqtt, platform);
+	if(rv != 0)
 	{
-		rv = gain_mqtt_conf(INI_PATH,&mqtt,ALI);
-		if(rv != 0)
-		{
-			printf("ali get conf failed\n");
-			return -1;
-		}
-	}
-	if(huawei)
-	{
-		rv = gain_mqtt_conf(INI_PATH,&mqtt,HUAWEI);
-		if(rv != 0)
-		{
-			printf("huawei get conf failed\n");
-			return -1;
-		}
-	}
-	if(tencent)
-	{
-		rv = gain_mqtt_conf(INI_PATH,&mqtt,TENCENT);
-		if(rv != 0)
-		{
-			printf("tencen get conf failed\n");
-			return -1;
-		}
+		printf("ali get conf failed\n");
+		return -1;
 	}
 
+	if((open_database("pub.db",&db))<0)
+	{
+		printf("open database failure\n");
+		return -1;
+	}
 
 	//init mosquitto lib
 	ret = mosquitto_lib_init();
@@ -155,7 +187,6 @@ int main(int argc,char *argv[])
 		return -1;
 	}
 	printf("init mosquitto lib successfully\n");
-
 
 
 	//mosquitto_new
@@ -169,9 +200,11 @@ int main(int argc,char *argv[])
 
 
 	//set callback function
-	mosquitto_connect_callback_set(mosq,my_connect_callback);
-	mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
-	mosquitto_publish_callback_set(mosq,my_publish_callback);
+	mosquitto_connect_callback_set(mosq,connect_callback);
+	mosquitto_disconnect_callback_set(mosq,disconnect_callback);
+	mosquitto_publish_callback_set(mosq,publish_callback);
+	mosquitto_subscribe_callback_set(mosq,subscribe_callback);
+	mosquitto_message_callback_set(mosq,message_callback);
 
 
 	if(mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd) != MOSQ_ERR_SUCCESS)
@@ -181,9 +214,6 @@ int main(int argc,char *argv[])
 	}
 	printf("mosquitto_username_pw_set successfully\n");
 
-
-	
-	printf("mosq: %s\nhost: %s\nport: %d\nKEEP_ALIVE: %d\n",mosq,mqtt.host,mqtt.port,KEEP_ALIVE);
 
 	//connect broke
 	ret = mosquitto_connect(mosq,mqtt.host,mqtt.port,KEEP_ALIVE);
@@ -195,7 +225,7 @@ int main(int argc,char *argv[])
 	printf("connect broke successfully\n");
 	
 
-	mosquitto_connect_callback_set(mosq,my_connect_callback);
+	mosquitto_connect_callback_set(mosq,connect_callback);
 	
 	if(daemon_run)
 	{
@@ -206,8 +236,70 @@ int main(int argc,char *argv[])
 	while(!g_sig_out)
 	{
 		//data is reported in json format
-		pub_json_data(mosq,&mqtt);
-		sleep(5);
+		//mosquitto_loop(mosq,-1,1);
+		now = time((time_t *)NULL);
+		sample_flag = 0;
+
+		if(interval_time <= (now - last))
+		{
+			printf("start sampling\n");
+			if(json_data(mosq,&mqtt,msg) != 0)
+			{
+				printf("sample data failure\n");
+				continue;
+			}
+			else
+			{
+				printf("msg: %s\n",msg);
+				printf("sample data successfully\n");
+				sample_flag = 1;
+			}
+			last = now;
+		}	
+		if(disconnect_flag)
+		{
+			printf("client disconnect\n");
+
+		}
+		else
+		{
+			sleep(3);
+			ret = mosquitto_publish(mosq,NULL,mqtt.topic,strlen(msg)+1,msg,mqtt.Qos,NULL);
+			if(ret != MOSQ_ERR_SUCCESS)
+			{
+				printf("mosquitto publish failure\n");
+
+				if(save_database(db,msg) < 0)
+				{
+					printf("save data failue\n");
+				}
+				else
+				{
+					printf("save data successfully\n");
+				}
+			}
+			if(select_database(db,s_data,sizeof(s_data)) > 0)
+			{
+				if(mosquitto_publish(mosq,NULL,mqtt.topic,strlen(msg)+1,msg,mqtt.Qos,NULL) != MOSQ_ERR_SUCCESS)
+				{
+					printf("publish data in database failure\n");
+				}
+				else
+				{
+					if(delete_database(db) < 0)
+					{
+						printf("delete data in database failure\n");
+					}
+				}
+			}	
+			else
+			{
+				printf("database is empty\n");
+			}
+		}
+
+		mosquitto_loop(mosq,-1,1);
+		printf("\n\n");
 	}
 
 cleanup:	
@@ -238,15 +330,12 @@ void sig_out(int signum)
 	}
 }
 
-void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
+int json_data(struct mosquitto *mosq,st_mqtt *mqt,char *payload)
 {
-//	char		buf[512];
+	char		*msg;
 	float		tem = 0;
 	char		tim[25];
-	char		*msg = NULL;
-	char		s_data[128];
-	sqlite3		*db = NULL;
-	int			sample_flag = 0;
+	float		smokescope = 0;
 
 
 	cJSON	*root = cJSON_CreateObject();
@@ -258,6 +347,9 @@ void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
 	
 	getTime(tim);
 	getTemper(&tem);
+	getSmokescope(&smokescope);
+
+	printf("smokescope in mos_pub: %f",smokescope);
 
 
 //	snprintf(buf,sizeof(buf),"%s/%f",tim,tem);
@@ -266,44 +358,28 @@ void pub_json_data(struct mosquitto *mosq,st_mqtt *mqt)
 	cJSON_AddItemToObject(root,"id",cJSON_CreateString(mqt->jsonid));
 	cJSON_AddItemToObject(root,"params",item);
 	cJSON_AddItemToObject(root,"time",cJSON_CreateString(tim));
-	cJSON_AddItemToObject(item,"CurrentTemperature",cJSON_CreateNumber(tem));
+	cJSON_AddItemToObject(item,"Temperature",cJSON_CreateNumber(smokescope));
 	cJSON_AddItemToObject(root,"version",cJSON_CreateString(mqt->version));
 
 	
 	msg = cJSON_Print(root);
-	printf("msg: %s\n",msg);
+	snprintf(payload,512,"%s",msg);
 
-	if(mosquitto_publish(mosq,NULL,mqt->topic,strlen(msg)+1,msg,mqt->Qos,NULL) != MOSQ_ERR_SUCCESS)
+	return 0;
+
+}
+char *getStatus(char *msg)
+{
+	char	*status = NULL;
+	printf("msg in getStatus is: %s\n",msg);
+
+	status = strstr(msg,"Temperature");
+	if(!status)
 	{
-
-		//publish failure save data in database
-		printf("mosquitto publish failure: %s\n",strerror(errno));
-		if(save_database(db,msg) < 0)
-		{
-			printf("save data failure\n");
-			sample_flag = 1;
-		}
-		if(sample_flag > 0)
-		{
-			if(select_database(db,s_data,sizeof(s_data)) > 0)		//database with data
-			{
-				if(mosquitto_publish(mosq,NULL,mqt->topic,strlen(s_data)+1,s_data,mqt->Qos,NULL) != MOSQ_ERR_SUCCESS)
-				{
-					printf("publish data in database failure\n");
-				}
-				else
-				{
-					printf("publish data in database sucsessfully\n");
-					if(delete_database(db) < 0)
-					{
-						printf("delete data in database failure");
-					}
-				}
-			}
-			else
-			{
-				printf("database is empty\n");
-			}
-		}
+		printf("ptr has problem\n");
 	}
+	status += 13;
+	printf("status in getStatus is: %s\n",status);
+
+	return (char*)status;
 }

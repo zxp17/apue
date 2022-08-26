@@ -25,7 +25,7 @@
 #include "mos_sub.h"
 #include "libgpiod-led.h"
 
-#define		INI_PATH		"./mosq_conf_ini"
+#define		INI_PATH		"./mosq_conf.ini"
 
 #define		HOST			"localhost"
 #define		PORT			1883

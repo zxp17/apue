@@ -36,20 +36,22 @@
 
 #define KEEP_ALIVE				60
 
-enum{
+enum
+{
 	ALI,
-	HUAWEI,
-	TENCENT
+	TENCENT,
+	HUAWEI
 };
 
 typedef struct data_st_mqtt{
 
-	char	host[BUF_SIZE];
+	int		Qos;
 	int		port;
+	int		status;
+	char	host[BUF_SIZE];
 	char	username[BUF_SIZE];
 	char	passwd[BUF_SIZE];
 	char	clientid[BUF_SIZE];
-	int		Qos;
 
 	char	method[BUF_SIZE];
 	char	topic[BUF_SIZE];
