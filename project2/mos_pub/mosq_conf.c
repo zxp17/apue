@@ -15,6 +15,7 @@
 #include <string.h>
 #include "iniparser.h"
 #include "mosq_conf.h"
+#include "logger.h"
 
 int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 {
@@ -41,7 +42,7 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 	ini = iniparser_load(ini_path);
 	if(ini == NULL)
 	{
-		printf("inipar_load failure\n");
+		log_error("inipar_load failure\n");
 		return -1;
 	}
 
@@ -49,7 +50,7 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 	//set value for struct
 	if(ALI == type)
 	{
-		printf("ALI\n");
+		log_info("ALI\n");
 		mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
 		mqtt->port =iniparser_getint(ini,"ali:port",-1);
 
@@ -66,7 +67,7 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 	}
 	if(TENCENT == type)
 	{
-		printf("TENCENT\n");
+		log_info("TENCENT\n");
 
 		mqtt->Qos = iniparser_getint(ini,"json:Qos",-1);
 		mqtt->port = iniparser_getint(ini,"tencent:port",-1);
@@ -86,7 +87,7 @@ int gain_mqtt_conf(char *ini_path,st_mqtt *mqtt,int type)
 	}
 	if(HUAWEI == type)
 	{
-		printf("HUAWEI\n");
+		log_info("HUAWEI\n");
 	}
 
 	iniparser_freedict(ini);

@@ -13,7 +13,7 @@ all:dynamic_lib dynamic_link run
 
 #dynamic_lib目标用来编译生成动态库
 dynamic_lib:
-	${CC} -shared -fPIC cJSON.c dictionary.c gettime.c gettemper.c client_database.c iniparser.c mosq_conf.c libgpiod-led.c  pcf8591_smoke.c  -o lib${LIBNAME}.so -I ${CFLAGS} -L ${LDFLAG} -lsqlite3  -lmosquitto  -lgpiod
+	${CC} -shared -fPIC cJSON.c dictionary.c gettime.c gettemper.c client_database.c iniparser.c mosq_conf.c libgpiod-led.c  pcf8591_smoke.c logger.c  -o lib${LIBNAME}.so -I ${CFLAGS} -L ${LDFLAG} -lsqlite3  -lmosquitto  -lgpiod
 
 #dynamic_link用来链接
 dynamic_link:

@@ -17,7 +17,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "client_database.h"
+#include "logger.h"
 
 static int callback(void *data,int argc,char **argv,char **azColName)
 {
@@ -25,9 +27,9 @@ static int callback(void *data,int argc,char **argv,char **azColName)
 		fprintf(stderr,"%s:",(const char*)data);
 		for(i = 0;i < argc; i++)
 		{
-			printf("%s = %s\n",azColName[i],argv[i] ? argv[i] : "NULL");
+			log_error("%s = %s\n",azColName[i],argv[i] ? argv[i] : "NULL");
 		}
-		printf("\n");
+		log_info("\n");
 		return 0;
 }
 
@@ -85,7 +87,7 @@ int save_database(sqlite3 *db,char *buf)
 		while(result != NULL)
 		{
 			info[i] = result;
-			printf("info[%d] is %s\n",i,info[i]);
+			log_debug("info[%d] is %s\n",i,info[i]);
 			i++;
 			result = strtok(NULL,delims);
 		}
@@ -127,7 +129,7 @@ int select_database(sqlite3 *db,char *s_data,int size)
 		sqlite3_close(db);
 		return -1;
 	}
-	printf("select from table successfully\n");
+	log_info("select from table successfully\n");
 	
 	if(0 == row)
 	{

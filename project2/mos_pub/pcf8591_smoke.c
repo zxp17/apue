@@ -15,6 +15,7 @@
 #include <errno.h> 
 #include <string.h>
 
+#include "logger.h"
 #include "pcf8591_smoke.h"
 
 #define I2C_API_RDWR 
@@ -31,16 +32,16 @@ int getSmokescope(float *smoke)
            
         if(fd < 0)        
         {                
-                 printf("pcf8591 initialize failure\n");                
+                 log_error("pcf8591 initialize failure\n");                
                  return 1;        
         }
         
         if( pcf8591_get_adc(fd,smoke) < 0 )        
         {                
-                printf("pcf8591 get get adc data\n");                
+            	log_error("pcf8591 get get adc data\n");                
                 return 2;        
         }
-		printf("smokescope: %f\n",*smoke);
+		log_info("smokescope: %f\n",*smoke);
         
         close(fd); 
  }
@@ -70,7 +71,7 @@ int pcf8591_init(void)
 
         if( (fd=open("/dev/i2c-1", O_RDWR)) < 0)        
         {                
-                printf("i2c device open failed: %s\n", strerror(errno));                
+                log_error("i2c device open failed: %s\n", strerror(errno));                
                 return -1;        
         }
     
@@ -101,8 +102,8 @@ int pcf8591_get_adc(int fd,float *smokescope)
 		*smokescope = buf[0]/255.0*100;
 
 
-        printf("data = %x\n", buf[0]);
-        printf("smokescope = %.2f%\n", *smokescope); 
+        log_debug("data = %x\n", buf[0]);
+        log_debug("smokescope = %.2f%\n", *smokescope); 
 
 		return 0; 
 }

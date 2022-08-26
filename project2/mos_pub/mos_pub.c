@@ -38,6 +38,7 @@
 #include "iniparser.h"
 #include "libgpiod-led.h"
 #include "pcf8591_smoke.h"
+#include "logger.h"
 
 #define		INI_PATH		"./mosq_conf.ini"
 
@@ -59,16 +60,16 @@ void connect_callback(struct mosquitto *mosq,void *obj,int rc)
 	if(rc)
 	{
 		//connect error
-		printf("connect broke error: %s\n",strerror(errno));
+		log_error("connect broke error: %s\n",strerror(errno));
 	}
 	else
 	{
 		if(mosquitto_subscribe(mosq,NULL,"/sys/hh80SkkdSUQ/mos_pub/thing/service/property/set",0))
 		{
-			printf("set the subscribe topic failure\n");
+			log_error("set the subscribe topic failure\n");
 			exit(1);
 		}
-		printf("subscribe successfully\n");
+		log_info("subscribe successfully\n");
 	}
 }
 
@@ -77,34 +78,34 @@ void disconnect_callback(struct mosquitto *mosq,void *obj,int rc)
 	st_mqtt				*mqtt = obj;
 
 	mqtt->status = disconnect_flag;
-	printf("callback: disconnected!!\n");
+	log_info("callback: disconnected!!\n");
 	running = 0;
 }
 void subscribe_callback(struct mosquitto *mosq,void *obj,int mid,int qos_count,const int *granted_qos)
 {
-	printf("callback from subscribe\n");
+	log_info("callback from subscribe\n");
 }
 void message_callback(struct mosquitto *mosq,void *obj,const struct mosquitto_message *msg)
 {
 	char		*status = NULL;
 	int			led_flag = 0;
-	printf("call the function: on message\n");
-	printf("recieve a message of %s\n: %s\n",(char *)msg->topic,(char *)msg->payload);
+	log_info("call the function: on message\n");
+	log_info("recieve a message of %s\n: %s\n",(char *)msg->topic,(char *)msg->payload);
 
 	status = getStatus((char *)msg->payload);
 
 	led_flag = atoi(status);
-	printf("led_flag in message: %d\n",led_flag);
+	log_info("led_flag in message: %d\n",led_flag);
 
 	if(controlLED(led_flag) != 0)
 	{
-		printf("control error\n");
+		log_info("control error\n");
 	}
 }
 
 void publish_callback(struct mosquitto *mosq,void *obj,int mid)
 {
-	printf("callback: publish called!!\n");
+	log_info("callback: publish called!!\n");
 }
 
 
@@ -169,13 +170,13 @@ int main(int argc,char *argv[])
 	rv = gain_mqtt_conf(INI_PATH,&mqtt, platform);
 	if(rv != 0)
 	{
-		printf("ali get conf failed\n");
+		log_error("ali get conf failed\n");
 		return -1;
 	}
 
 	if((open_database("pub.db",&db))<0)
 	{
-		printf("open database failure\n");
+		log_error("open database failure\n");
 		return -1;
 	}
 
@@ -183,20 +184,20 @@ int main(int argc,char *argv[])
 	ret = mosquitto_lib_init();
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
-		printf("init lib error: %s\n",strerror(errno));
+		log_error("init lib error: %s\n",strerror(errno));
 		return -1;
 	}
-	printf("init mosquitto lib successfully\n");
+	log_info("init mosquitto lib successfully\n");
 
 
 	//mosquitto_new
 	mosq = mosquitto_new(mqtt.clientid,true,(void *)&mqtt);
 	if(NULL == mosq)
 	{
-		printf("new pub_test error\n");
+		log_error("new pub_test error\n");
 		goto cleanup;
 	}
-	printf("create a client successfully\n");
+	log_info("create a client successfully\n");
 
 
 	//set callback function
@@ -209,20 +210,20 @@ int main(int argc,char *argv[])
 
 	if(mosquitto_username_pw_set(mosq,mqtt.username,mqtt.passwd) != MOSQ_ERR_SUCCESS)
 	{
-		printf("mosquitto_username_pw_set failure: %s\n",strerror(errno));
+		log_error("mosquitto_username_pw_set failure: %s\n",strerror(errno));
 		goto cleanup;
 	}
-	printf("mosquitto_username_pw_set successfully\n");
+	log_info("mosquitto_username_pw_set successfully\n");
 
 
 	//connect broke
 	ret = mosquitto_connect(mosq,mqtt.host,mqtt.port,KEEP_ALIVE);
 	if(ret != MOSQ_ERR_SUCCESS)
 	{
-		printf("connect broker error: %s\n",strerror(errno));
+		log_error("connect broker error: %s\n",strerror(errno));
 		goto cleanup;
 	}
-	printf("connect broke successfully\n");
+	log_info("connect broke successfully\n");
 	
 
 	mosquitto_connect_callback_set(mosq,connect_callback);
@@ -242,23 +243,23 @@ int main(int argc,char *argv[])
 
 		if(interval_time <= (now - last))
 		{
-			printf("start sampling\n");
+			log_info("start sampling\n");
 			if(json_data(mosq,&mqtt,msg) != 0)
 			{
-				printf("sample data failure\n");
+				log_info("sample data failure\n");
 				continue;
 			}
 			else
 			{
-				printf("msg: %s\n",msg);
-				printf("sample data successfully\n");
+				log_info("msg: %s\n",msg);
+				log_info("sample data successfully\n");
 				sample_flag = 1;
 			}
 			last = now;
 		}	
 		if(disconnect_flag)
 		{
-			printf("client disconnect\n");
+			log_info("client disconnect\n");
 
 		}
 		else
@@ -267,34 +268,34 @@ int main(int argc,char *argv[])
 			ret = mosquitto_publish(mosq,NULL,mqtt.topic,strlen(msg)+1,msg,mqtt.Qos,NULL);
 			if(ret != MOSQ_ERR_SUCCESS)
 			{
-				printf("mosquitto publish failure\n");
+				log_info("mosquitto publish failure\n");
 
 				if(save_database(db,msg) < 0)
 				{
-					printf("save data failue\n");
+					log_info("save data failue\n");
 				}
 				else
 				{
-					printf("save data successfully\n");
+					log_info("save data successfully\n");
 				}
 			}
 			if(select_database(db,s_data,sizeof(s_data)) > 0)
 			{
 				if(mosquitto_publish(mosq,NULL,mqtt.topic,strlen(msg)+1,msg,mqtt.Qos,NULL) != MOSQ_ERR_SUCCESS)
 				{
-					printf("publish data in database failure\n");
+					log_error("publish data in database failure\n");
 				}
 				else
 				{
 					if(delete_database(db) < 0)
 					{
-						printf("delete data in database failure\n");
+						log_error("delete data in database failure\n");
 					}
 				}
 			}	
 			else
 			{
-				printf("database is empty\n");
+				log_info("database is empty\n");
 			}
 		}
 
@@ -325,7 +326,7 @@ void sig_out(int signum)
 {
 	if(SIGTERM == signum)
 	{
-		printf("the program is exit\n");
+		log_info("the program is exit\n");
 		g_sig_out = 1;
 	}
 }
@@ -349,7 +350,7 @@ int json_data(struct mosquitto *mosq,st_mqtt *mqt,char *payload)
 	getTemper(&tem);
 	getSmokescope(&smokescope);
 
-	printf("smokescope in mos_pub: %f",smokescope);
+//	printf("smokescope in mos_pub: %f",smokescope);
 
 
 //	snprintf(buf,sizeof(buf),"%s/%f",tim,tem);
@@ -371,15 +372,15 @@ int json_data(struct mosquitto *mosq,st_mqtt *mqt,char *payload)
 char *getStatus(char *msg)
 {
 	char	*status = NULL;
-	printf("msg in getStatus is: %s\n",msg);
+	log_debug("msg in getStatus is: %s\n",msg);
 
 	status = strstr(msg,"Temperature");
 	if(!status)
 	{
-		printf("ptr has problem\n");
+		log_debug("ptr has problem\n");
 	}
 	status += 13;
-	printf("status in getStatus is: %s\n",status);
+	log_debug("status in getStatus is: %s\n",status);
 
 	return (char*)status;
 }
