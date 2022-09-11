@@ -199,6 +199,12 @@ int main(int argc,char *argv[])
 	}
 	log_info("create a client successfully\n");
 
+	if(logger_init("mos_pub.log",LOG_LEVEL_DEBUG) < 0)
+	{
+         fprintf(stderr,"initial logger system failure\n");
+         return -1;
+	}
+	
 
 	//set callback function
 	mosquitto_connect_callback_set(mosq,connect_callback);
@@ -337,6 +343,7 @@ int json_data(struct mosquitto *mosq,st_mqtt *mqt,char *payload)
 	float		tem = 0;
 	char		tim[25];
 	float		smokescope = 0;
+	char		trans_data[50];
 
 
 	cJSON	*root = cJSON_CreateObject();
@@ -349,6 +356,9 @@ int json_data(struct mosquitto *mosq,st_mqtt *mqt,char *payload)
 	getTime(tim);
 	getTemper(&tem);
 	getSmokescope(&smokescope);
+
+	snprintf(trans_data,sizeof(trans_data),"%d.%d",(int)smokescope,(int)tem);
+//	printf("trans_data: %s\n",trans_data);
 
 //	printf("smokescope in mos_pub: %f",smokescope);
 

@@ -1,0 +1,408 @@
+mos_pub : 21:38:42 [INFO ] mosquitto_username_pw_set successfully
+
+mos_pub : 21:38:42 [INFO ] connect broke successfully
+
+mos_pub : 21:38:42 [INFO ] start sampling
+
+mos_pub : 21:38:42 [DEBUG] data = 80
+
+mos_pub : 21:38:42 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:38:42 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:38:42 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:38:42",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:38:42 [INFO ] sample data successfully
+
+mos_pub : 21:38:45 [INFO ] callback: publish called!!
+
+mos_pub : 21:38:45 [INFO ] select from table successfully
+
+mos_pub : 21:38:45 [INFO ] database is empty
+
+mos_pub : 21:38:45 [INFO ] subscribe successfully
+
+mos_pub : 21:38:48 [INFO ] callback: publish called!!
+
+mos_pub : 21:38:48 [INFO ] select from table successfully
+
+mos_pub : 21:38:48 [INFO ] database is empty
+
+mos_pub : 21:38:48 [INFO ] callback from subscribe
+
+mos_pub : 21:38:48 [INFO ] start sampling
+
+mos_pub : 21:38:48 [DEBUG] data = 80
+
+mos_pub : 21:38:48 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:38:48 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:38:48 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:38:48",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:38:48 [INFO ] sample data successfully
+
+mos_pub : 21:38:51 [INFO ] callback: publish called!!
+
+mos_pub : 21:38:51 [INFO ] select from table successfully
+
+mos_pub : 21:38:51 [INFO ] database is empty
+
+mos_pub : 21:43:42 [INFO ] mosquitto_username_pw_set successfully
+
+mos_pub : 21:43:42 [INFO ] connect broke successfully
+
+mos_pub : 21:43:42 [INFO ] start sampling
+
+mos_pub : 21:43:42 [DEBUG] data = 80
+
+mos_pub : 21:43:42 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:43:42 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:43:42 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:43:42",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:43:42 [INFO ] sample data successfully
+
+mos_pub : 21:43:45 [INFO ] callback: publish called!!
+
+mos_pub : 21:43:45 [INFO ] select from table successfully
+
+mos_pub : 21:43:45 [INFO ] database is empty
+
+mos_pub : 21:43:45 [INFO ] subscribe successfully
+
+mos_pub : 21:45:12 [INFO ] mosquitto_username_pw_set successfully
+
+mos_pub : 21:45:13 [INFO ] connect broke successfully
+
+mos_pub : 21:45:13 [INFO ] start sampling
+
+mos_pub : 21:45:13 [DEBUG] data = 80
+
+mos_pub : 21:45:13 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:45:13 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:45:13 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:45:13",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:45:13 [INFO ] sample data successfully
+
+mos_pub : 21:45:16 [INFO ] callback: publish called!!
+
+mos_pub : 21:45:16 [INFO ] select from table successfully
+
+mos_pub : 21:45:16 [INFO ] database is empty
+
+mos_pub : 21:45:16 [INFO ] subscribe successfully
+
+mos_pub : 21:45:19 [INFO ] callback: publish called!!
+
+mos_pub : 21:45:19 [INFO ] select from table successfully
+
+mos_pub : 21:45:19 [INFO ] database is empty
+
+mos_pub : 21:45:19 [INFO ] callback from subscribe
+
+mos_pub : 21:45:19 [INFO ] start sampling
+
+mos_pub : 21:45:19 [DEBUG] data = 80
+
+mos_pub : 21:45:19 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:45:19 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:45:19 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:45:19",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:45:19 [INFO ] sample data successfully
+
+mos_pub : 21:45:22 [INFO ] callback: publish called!!
+
+mos_pub : 21:45:22 [INFO ] select from table successfully
+
+mos_pub : 21:45:22 [INFO ] database is empty
+
+mos_pub : 21:45:25 [INFO ] callback: publish called!!
+
+mos_pub : 21:45:25 [INFO ] select from table successfully
+
+mos_pub : 21:45:25 [INFO ] database is empty
+
+mos_pub : 21:45:25 [INFO ] start sampling
+
+mos_pub : 21:45:25 [DEBUG] data = 80
+
+mos_pub : 21:45:25 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:45:25 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:45:25 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:45:25",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:45:25 [INFO ] sample data successfully
+
+mos_pub : 21:46:13 [INFO ] mosquitto_username_pw_set successfully
+
+mos_pub : 21:46:13 [INFO ] connect broke successfully
+
+mos_pub : 21:46:13 [INFO ] start sampling
+
+mos_pub : 21:46:13 [DEBUG] data = 80
+
+mos_pub : 21:46:13 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:46:13 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:46:13 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:46:13",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:46:13 [INFO ] sample data successfully
+
+mos_pub : 21:46:16 [INFO ] callback: publish called!!
+
+mos_pub : 21:46:16 [INFO ] select from table successfully
+
+mos_pub : 21:46:16 [INFO ] database is empty
+
+mos_pub : 21:46:16 [INFO ] subscribe successfully
+
+mos_pub : 21:46:19 [INFO ] callback: publish called!!
+
+mos_pub : 21:46:19 [INFO ] select from table successfully
+
+mos_pub : 21:46:19 [INFO ] database is empty
+
+mos_pub : 21:46:19 [INFO ] callback from subscribe
+
+mos_pub : 21:46:19 [INFO ] start sampling
+
+mos_pub : 21:46:19 [DEBUG] data = 80
+
+mos_pub : 21:46:19 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:46:19 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:46:19 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:46:19",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:46:19 [INFO ] sample data successfully
+
+mos_pub : 21:50:01 [INFO ] mosquitto_username_pw_set successfully
+
+mos_pub : 21:50:01 [INFO ] connect broke successfully
+
+mos_pub : 21:50:01 [INFO ] start sampling
+
+mos_pub : 21:50:01 [DEBUG] data = 80
+
+mos_pub : 21:50:01 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:50:01 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:50:01 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:50:1",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:50:01 [INFO ] sample data successfully
+
+mos_pub : 21:50:04 [INFO ] callback: publish called!!
+
+mos_pub : 21:50:04 [INFO ] select from table successfully
+
+mos_pub : 21:50:04 [INFO ] database is empty
+
+mos_pub : 21:50:04 [INFO ] subscribe successfully
+
+mos_pub : 21:50:07 [INFO ] callback: publish called!!
+
+mos_pub : 21:50:07 [INFO ] select from table successfully
+
+mos_pub : 21:50:07 [INFO ] database is empty
+
+mos_pub : 21:50:07 [INFO ] callback from subscribe
+
+mos_pub : 21:50:07 [INFO ] start sampling
+
+mos_pub : 21:50:07 [DEBUG] data = 80
+
+mos_pub : 21:50:07 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:50:07 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:50:07 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:50:7",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:50:07 [INFO ] sample data successfully
+
+mos_pub : 21:50:10 [INFO ] callback: publish called!!
+
+mos_pub : 21:50:10 [INFO ] select from table successfully
+
+mos_pub : 21:50:10 [INFO ] database is empty
+
+mos_pub : 21:50:13 [INFO ] callback: publish called!!
+
+mos_pub : 21:50:13 [INFO ] select from table successfully
+
+mos_pub : 21:50:13 [INFO ] database is empty
+
+mos_pub : 21:50:13 [INFO ] start sampling
+
+mos_pub : 21:50:13 [DEBUG] data = 80
+
+mos_pub : 21:50:13 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:50:13 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:50:13 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:50:13",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:50:13 [INFO ] sample data successfully
+
+mos_pub : 21:50:16 [INFO ] callback: publish called!!
+
+mos_pub : 21:50:16 [INFO ] select from table successfully
+
+mos_pub : 21:50:16 [INFO ] database is empty
+
+mos_pub : 21:52:04 [INFO ] mosquitto_username_pw_set successfully
+
+mos_pub : 21:52:04 [INFO ] connect broke successfully
+
+mos_pub : 21:52:04 [INFO ] start sampling
+
+mos_pub : 21:52:04 [DEBUG] data = 80
+
+mos_pub : 21:52:04 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:52:04 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:52:04 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:52:4",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:52:04 [INFO ] sample data successfully
+
+mos_pub : 21:52:07 [INFO ] callback: publish called!!
+
+mos_pub : 21:52:07 [INFO ] select from table successfully
+
+mos_pub : 21:52:07 [INFO ] database is empty
+
+mos_pub : 21:52:07 [INFO ] subscribe successfully
+
+mos_pub : 21:52:10 [INFO ] callback: publish called!!
+
+mos_pub : 21:52:10 [INFO ] select from table successfully
+
+mos_pub : 21:52:10 [INFO ] database is empty
+
+mos_pub : 21:52:10 [INFO ] callback from subscribe
+
+mos_pub : 21:52:10 [INFO ] start sampling
+
+mos_pub : 21:52:10 [DEBUG] data = 80
+
+mos_pub : 21:52:10 [DEBUG] smokescope = 50.20%
+
+mos_pub : 21:52:10 [INFO ] smokescope: 50.196079
+
+mos_pub : 21:52:10 [INFO ] msg: {
+	"method":	"thing.service.property.set",
+	"id":	"xz",
+	"params":	{
+		"Temperature":	50.1960792541504
+	},
+	"time":	"2022/9/11 21:52:10",
+	"version":	"1.1.0"
+}
+
+mos_pub : 21:52:10 [INFO ] sample data successfully
+

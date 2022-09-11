@@ -1,12 +1,12 @@
 /*********************************************************************************
- *      Copyright:  (C) 2022 LingYun IoT System Studio
+ *      Copyright:  (C) 2022 zxp
  *                  All rights reserved.
  *
  *       Filename:  logger.c
  *    Description:  This file 
  *                 
  *        Version:  1.0.0(15/04/22)
- *         Author:  LingYun <lingyun@email.com>
+ *         Author:  zxp <1572077261@qq.com>
  *      ChangeLog:  1, Release initial version on "15/04/22 10:38:49"
  *                 
  ********************************************************************************/
